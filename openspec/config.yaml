@@ -8,7 +8,7 @@ context: |
     - services/ms-<name>/   one folder per microservice
     - api-gateway/          YARP
     - infrastructure/       Docker setup of infrastructure tools
-    - CarSales.sln          root solution referencing every project
+    - CarSales.slnx         root solution referencing every project
     - docker-compose.yml    root compose that includes every service and infrastructure compose file
 
   Database: PostgreSQL. Local and Development share one PostgreSQL server in Docker,
@@ -18,7 +18,8 @@ context: |
 
   Infrastructure is added only when a change needs it. PostgreSQL is the only tool from the start.
     - Kafka: when the first event is needed.
-    - Vault: when the first secret is needed. VAULT_TOKEN is the only value kept in .env.
+    - Vault: when the first secret is needed. VAULT_TOKEN is the only value kept in .env,
+      loaded in code with DotNetEnv so it works the same with dotnet run, the IDE, and tests.
     - Keycloak: only when authentication is requested. Until then endpoints have no authorization.
     - Redis, Elasticsearch: when a change needs them.
 
