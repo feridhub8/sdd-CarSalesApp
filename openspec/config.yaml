@@ -11,8 +11,9 @@ context: |
     - CarSales.slnx         root solution referencing every project
     - docker-compose.yml    root compose that includes every service and infrastructure compose file
 
-  Database: PostgreSQL. Local and Development share one PostgreSQL server in Docker,
-  with a separate database per service. Production uses a separate server.
+  Database: PostgreSQL. One server in Docker holds the development and production
+  databases, a database per service. Production databases may later move to a separate
+  server, with or without their data.
   Communication: HTTP for synchronous calls, Kafka for events.
   Mapping: AutoMapper 14.0.0. Never upgrade to 15 or later (commercial license).
 
@@ -21,6 +22,7 @@ context: |
     - Vault: when the first secret is needed. VAULT_TOKEN is the only value kept in .env,
       loaded in code with DotNetEnv so it works the same with dotnet run, the IDE, and tests.
     - Keycloak: only when authentication is requested. Until then endpoints have no authorization.
+      One instance with its own database; environments are separated by realms.
     - Redis, Elasticsearch: when a change needs them.
 
   Write all OpenSpec artifacts in English.
