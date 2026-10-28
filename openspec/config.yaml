@@ -19,8 +19,10 @@ context: |
 
   Infrastructure is added only when a change needs it. PostgreSQL is the only tool from the start.
     - Kafka: when the first event is needed.
-    - Vault: when the first secret is needed. VAULT_TOKEN is the only value kept in .env,
+    - Vault: when the first secret is needed. Services sign in with AppRole;
+      VAULT_ROLE_ID and VAULT_SECRET_ID are the only values kept in .env,
       loaded in code with DotNetEnv so it works the same with dotnet run, the IDE, and tests.
+      People sign in with userpass. The root token is revoked after setup.
     - Keycloak: only when authentication is requested. Until then endpoints have no authorization.
       One instance with its own database; environments are separated by realms.
     - Redis, Elasticsearch: when a change needs them.
