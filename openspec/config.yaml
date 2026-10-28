@@ -1,13 +1,28 @@
 schema: spec-driven
 
-# Project context (optional)
-# Add only constraints that should guide OpenSpec artifacts and workflows.
-# Include constraints an agent cannot infer by reading the code.
-# Keep general project documentation and discoverable codebase facts out.
-# Example:
-#   context: |
-#     Designs and tasks must cover Windows, macOS, and Linux
-#     Write all artifacts in Spanish
+context: |
+  Project: CarSales (slug: carsales). Microservices on ASP.NET Core Web API, .NET 10.
+  Global rules (sdd-global-rules) apply; this file records project-specific decisions only.
+
+  Repository: monorepo.
+    - services/ms-<name>/   one folder per microservice
+    - api-gateway/          YARP
+    - infrastructure/       Docker setup of infrastructure tools
+    - CarSales.sln          root solution referencing every project
+    - docker-compose.yml    root compose that includes every service and infrastructure compose file
+
+  Database: PostgreSQL. Local and Development share one PostgreSQL server in Docker,
+  with a separate database per service. Production uses a separate server.
+  Communication: HTTP for synchronous calls, Kafka for events.
+  Mapping: AutoMapper 14.0.0. Never upgrade to 15 or later (commercial license).
+
+  Infrastructure is added only when a change needs it. PostgreSQL is the only tool from the start.
+    - Kafka: when the first event is needed.
+    - Vault: when the first secret is needed. VAULT_TOKEN is the only value kept in .env.
+    - Keycloak: only when authentication is requested. Until then endpoints have no authorization.
+    - Redis, Elasticsearch: when a change needs them.
+
+  Write all OpenSpec artifacts in English.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
