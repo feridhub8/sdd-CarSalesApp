@@ -1,0 +1,48 @@
+name: carsales
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - carsales_network
+
+  postgres-setup:
+    image: postgres:17
+    restart: "no"
+    env_file:
+      - .env
+      - ../keycloak/.env
+    volumes:
+      - ./setup:/setup:ro
+    command:
+      - sh
+      - -c
+      - >-
+        [ -n "$$KC_DB_PASSWORD" ] || { echo "KC_DB_PASSWORD is empty in infrastructure/keycloak/.env"; exit 1; };
+        PGPASSWORD="$$POSTGRES_PASSWORD"
+        psql -h postgres -U "$$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1
+        -v kc_password="$$KC_DB_PASSWORD"
+        -f /setup/databases.sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - carsales_network
+
+volumes:
+  postgres_data:
+
+networks:
+  carsales_network:
+    external: true

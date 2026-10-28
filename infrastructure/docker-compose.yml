@@ -1,0 +1,4 @@
+name: carsales
+
+include:
+  - postgres/docker-compose.yml
