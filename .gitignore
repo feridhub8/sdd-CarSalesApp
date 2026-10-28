@@ -1,0 +1,50 @@
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+desktop.ini
+
+# IDE / editors
+.vs/
+.idea/
+*.user
+*.suo
+*.rsuser
+*.swp
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+[Tt]est[Rr]esults/
+*.nupkg
+*.snupkg
+
+# Frontend
+node_modules/
+dist/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.key
+
+# Logs
+logs/
+*.log
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Graphify
+graphify-out/
