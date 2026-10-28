@@ -1,0 +1,4 @@
+name: carsales
+
+include:
+  - services/ms-auth/docker-compose.dev.yml

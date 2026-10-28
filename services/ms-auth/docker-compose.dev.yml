@@ -1,0 +1,18 @@
+name: carsales
+
+services:
+  ms-auth:
+    build:
+      context: ../..
+      dockerfile: services/ms-auth/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "6001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    networks:
+      - carsales_network
+
+networks:
+  carsales_network:
+    external: true

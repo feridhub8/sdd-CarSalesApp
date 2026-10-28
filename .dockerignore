@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+.idea/
+**/.env
+graphify-out/
+openspec/
+.claude/
+**/.DS_Store

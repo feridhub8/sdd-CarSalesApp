@@ -23,3 +23,17 @@ dotnet run --project src/WebApi
 ```
 
 The app starts in the `Local` environment on `http://localhost:5001`. Stop it with `Ctrl+C`.
+
+## Docker
+
+Requires the `carsales_network` network (see the root `README.md`). From `services/ms-auth/`:
+
+```bash
+# Development: http://localhost:6001
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml down
+
+# Production: http://localhost:7001
+docker compose up -d --build
+docker compose down
+```
