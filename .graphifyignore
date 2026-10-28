@@ -1,0 +1,3 @@
+# AI tool files (OpenSpec commands/skills, Claude Code config) are not project content
+.claude/
+CLAUDE.md
