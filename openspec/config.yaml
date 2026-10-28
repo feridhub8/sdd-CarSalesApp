@@ -15,7 +15,7 @@ context: |
   databases, a database per service. Production databases may later move to a separate
   server, with or without their data.
   Communication: HTTP for synchronous calls, Kafka for events.
-  Mapping: AutoMapper 14.0.0. Never upgrade to 15 or later (commercial license).
+  Mapping: Mapster (MIT).
 
   Infrastructure is added only when a change needs it. PostgreSQL is the only tool from the start.
     - Kafka: when the first event is needed.
