@@ -2,3 +2,4 @@ name: carsales
 
 include:
   - postgres/docker-compose.yml
+  - keycloak/docker-compose.yml

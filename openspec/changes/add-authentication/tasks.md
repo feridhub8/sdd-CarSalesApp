@@ -10,9 +10,9 @@ Apply one group at a time (design §8): stop after each group, report how to tes
 
 ## 2. Keycloak
 
-- [ ] 2.1 Create `infrastructure/keycloak/docker-compose.yml` (`keycloak:26.4`, `start-dev --import-realm`, DB at `postgres:5432/keycloak`, bootstrap admin, `KC_HOSTNAME`, `KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true`, port `8080`, `realms/` mounted read-only, `restart: unless-stopped`) and `.env.example`; include it in `infrastructure/docker-compose.yml`; verify the admin console opens on `http://localhost:8080`
-- [ ] 2.2 Write `realms/carsales-realm.json` and `realms/carsalesDev-realm.json` with the realm settings, the `ms-auth` client, the service account roles, and the audience mapper from design §3, with secret placeholders; verify after a fresh start (`down -v`, then `up`) that both realms exist, a `client_credentials` request with each secret from `keycloak/.env` returns 200, and a token fetched from inside the network (`keycloak:8080`) has issuer `http://localhost:8080/realms/<realm>`
-- [ ] 2.3 Restart Keycloak with the realms already present; verify the log shows the import skipped them and a change made in the console is kept
+- [x] 2.1 Create `infrastructure/keycloak/docker-compose.yml` (`keycloak:26.4`, `start-dev --import-realm`, DB at `postgres:5432/keycloak`, bootstrap admin, `KC_HOSTNAME`, `KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true`, port `8080`, `realms/` mounted read-only, `restart: unless-stopped`) and `.env.example`; include it in `infrastructure/docker-compose.yml`; verify the admin console opens on `http://localhost:8080`
+- [x] 2.2 Write `realms/carsales-realm.json` and `realms/carsalesDev-realm.json` with the realm settings, the `ms-auth` client, the service account roles, and the audience mapper from design §3, with secret placeholders; verify after a fresh start (`down -v`, then `up`) that both realms exist, a `client_credentials` request with each secret from `keycloak/.env` returns 200, and a token fetched from inside the network (`keycloak:8080`) has issuer `http://localhost:8080/realms/<realm>`
+- [x] 2.3 Restart Keycloak with the realms already present; verify the log shows the import skipped them and a change made in the console is kept
 
 ## 3. Vault
 
