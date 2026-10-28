@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ms-auth (Local)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build ms-auth",
+      "program": "${workspaceFolder}/services/ms-auth/src/WebApi/bin/Debug/net10.0/WebApi.dll",
+      "cwd": "${workspaceFolder}/services/ms-auth/src/WebApi",
+      "launchSettingsFilePath": "${workspaceFolder}/services/ms-auth/src/WebApi/Properties/launchSettings.json",
+      "launchSettingsProfile": "http"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "All services (Local)",
+      "configurations": [
+        "ms-auth (Local)"
+      ],
+      "stopAll": true
+    }
+  ]
+}
