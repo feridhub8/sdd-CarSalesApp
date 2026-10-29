@@ -43,20 +43,36 @@ The app starts in the `Local` environment on `http://localhost:5001` and uses th
 
 All under `api/v1/Auth`. Errors are returned as ProblemDetails.
 
-| Endpoint | Body | Success | Errors |
+### Web and mobile clients
+
+The same endpoints serve both. The `X-Client-Type` header picks how the refresh token travels:
+
+| | Web (no header, default) | Mobile (`X-Client-Type: mobile`) |
+|---|---|---|
+| Refresh token | `HttpOnly` cookie `refresh_token` (`Secure`, `SameSite=Strict`, `Path=/api/v1/Auth`), set by Login and Refresh | In the response body |
+| Refresh / Logout send it | Nothing to do: the browser sends the cookie; no body | In the body: `{"refreshToken": "..."}` |
+| Access token | Body (keep it in memory only) | Body |
+
+Each mode uses only its own source: a web request never reads a body token, and a mobile request never reads the cookie. This keeps the cookie's token out of reach of JavaScript.
+
+| Endpoint | Request | Success | Errors |
 |---|---|---|---|
 | `POST Register` | `username`, `email`, `password`, `firstName`, `lastName` | `201` user (`id`, `username`, `email`, `firstName`, `lastName`), no tokens | `400` invalid fields, `409` username or email exists |
-| `POST Login` | `login` (username or email), `password` | `200` `accessToken`, `refreshToken`, `expiresIn`, `refreshExpiresIn`, `tokenType` | `400` missing fields, `401` wrong login or password |
-| `POST Refresh` | `refreshToken` | `200` new token pair | `400` missing field, `401` invalid, expired, or signed-out token |
-| `POST Logout` | `refreshToken` | `204`; the session ends, its refresh and access tokens stop working | `400` missing field, `401` invalid, expired, or signed-out token |
+| `POST Login` | `login` (username or email), `password` | `200` `accessToken`, `expiresIn`, `refreshExpiresIn`, `tokenType`; web: refresh token cookie, mobile: `refreshToken` in the body | `400` missing fields, `401` wrong login or password |
+| `POST Refresh` | web: no body; mobile: `refreshToken` | `200` new tokens, delivered like Login | web: `401` no or invalid cookie (cookie cleared); mobile: `400` no token, `401` invalid token |
+| `POST Logout` | web: no body; mobile: `refreshToken` | `204`; the login ends, its refresh and access tokens stop working; web: cookie cleared | web: `401` no or invalid cookie (cookie cleared); mobile: `400` no token, `401` invalid token |
 | `GET Me` | header `Authorization: Bearer <accessToken>` | `200` user | `401` missing, invalid, expired, signed-out, or other-environment token |
 
 Rules:
 
 - `username`: 3–30 characters of letters, digits, `.`, `_` or `-`; case-insensitive (stored in lowercase).
 - `password`: at least 8 characters with an uppercase letter, a lowercase letter, a digit, and a symbol. Each broken rule is listed in the `400` response. Keycloak enforces the same policy.
+- **Refresh tokens work once (rotation).** Every refresh returns a new one. Sending an already-used refresh token gives `401` and ends that login, including its newer tokens. A web frontend must therefore send only one refresh at a time (for example, one shared refresh promise across tabs); parallel refreshes from several tabs end the login.
+- **Safari and `http://localhost`:** the cookie is always `Secure`. Chrome, Edge, and Firefox accept it on `http://localhost`; Safari does not, so test the web flow locally with one of the others (or over HTTPS).
 
-Example against Local:
+### Example against Local
+
+Web (curl's cookie jar stands in for the browser):
 
 ```bash
 BASE=http://localhost:5001/api/v1/Auth
@@ -64,15 +80,30 @@ BASE=http://localhost:5001/api/v1/Auth
 curl -i -X POST $BASE/Register -H "Content-Type: application/json" \
   -d '{"username":"jane","email":"jane@example.com","password":"Secret123!","firstName":"Jane","lastName":"Doe"}'
 
-curl -s -X POST $BASE/Login -H "Content-Type: application/json" \
+curl -s -c jar.txt -X POST $BASE/Login -H "Content-Type: application/json" \
   -d '{"login":"jane","password":"Secret123!"}'
-# copy accessToken and refreshToken from the response
+# copy accessToken; the refresh token is now in jar.txt
 
 curl -s $BASE/Me -H "Authorization: Bearer <accessToken>"
 
-curl -s -X POST $BASE/Refresh -H "Content-Type: application/json" -d '{"refreshToken":"<refreshToken>"}'
+curl -s -b jar.txt -c jar.txt -X POST $BASE/Refresh
 
-curl -i -X POST $BASE/Logout -H "Content-Type: application/json" -d '{"refreshToken":"<refreshToken>"}'
+curl -i -b jar.txt -c jar.txt -X POST $BASE/Logout
+```
+
+Mobile:
+
+```bash
+curl -s -X POST $BASE/Login -H "X-Client-Type: mobile" -H "Content-Type: application/json" \
+  -d '{"login":"jane","password":"Secret123!"}'
+# copy accessToken and refreshToken
+
+curl -s -X POST $BASE/Refresh -H "X-Client-Type: mobile" -H "Content-Type: application/json" \
+  -d '{"refreshToken":"<refreshToken>"}'
+# use the new refreshToken from this response; the old one no longer works
+
+curl -i -X POST $BASE/Logout -H "X-Client-Type: mobile" -H "Content-Type: application/json" \
+  -d '{"refreshToken":"<refreshToken>"}'
 ```
 
 ## Docker
