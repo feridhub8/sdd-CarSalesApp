@@ -8,7 +8,13 @@ Shared tools for every CarSales environment. Each tool has its own folder with a
 | Keycloak 26.4 | `carsales-keycloak-1` | `8080` | One instance. Realms: `carsales` (production), `carsalesDev` (development). |
 | Vault 2.2.1 | `carsales-vault-1` | `8200` | Secrets. Sealed after every start. |
 
-`postgres-setup` runs on every start and creates any missing roles and databases (`postgres/setup/databases.sql`). It is safe to run again and again.
+Two one-shot services run on every start and exit. Both are safe to run again and again:
+
+- `postgres-setup` creates any missing roles and databases (`postgres/setup/databases.sql`).
+- `keycloak-setup` applies the realm settings the project owns to `carsales` and `carsalesDev` (`keycloak/setup/realms.sh`): username separate from email, login with username or email, unique emails, and the password policy (8+ characters with an uppercase letter, a lowercase letter, a digit, and a symbol).
+  - Realm import only creates missing realms, so this is how existing realms get new settings.
+  - These keys are owned by the script: a change made to them in the admin console is undone on the next start.
+  - It signs in as the bootstrap admin from `keycloak/.env`. If that admin is replaced or deleted, the setup fails until the variables point to a working admin.
 
 ## Daily use
 

@@ -18,6 +18,19 @@ services:
     networks:
       - carsales_network
 
+  keycloak-setup:
+    image: quay.io/keycloak/keycloak:26.4
+    restart: "no"
+    env_file: .env
+    entrypoint: ["bash", "/setup/realms.sh"]
+    volumes:
+      - ./setup:/setup:ro
+    depends_on:
+      keycloak:
+        condition: service_started
+    networks:
+      - carsales_network
+
 networks:
   carsales_network:
     external: true
