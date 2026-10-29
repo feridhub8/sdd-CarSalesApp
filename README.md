@@ -8,6 +8,29 @@ Car sales platform built as .NET 10 microservices.
 |---|---|
 | ms-auth | `services/ms-auth/` |
 
+## Infrastructure
+
+Shared by every environment. Setup, daily use, and backups are in [`infrastructure/README.md`](infrastructure/README.md).
+
+| Tool | Host port |
+|---|---|
+| PostgreSQL | `5432` |
+| Keycloak | `8080` |
+| Vault | `8200` |
+
+Vault is sealed after every start. Services cannot read their secrets until it is unsealed:
+
+```bash
+docker compose -f infrastructure/docker-compose.yml run --rm vault-unseal
+```
+
+Local runs (`dotnet run` / IDE) need only the infrastructure:
+
+```bash
+docker compose -f infrastructure/docker-compose.yml up -d
+docker compose -f infrastructure/docker-compose.yml run --rm vault-unseal
+```
+
 ## Ports
 
 The first digit is the environment, the last digits are the service number.
@@ -30,16 +53,18 @@ docker network create carsales_network
 
 ### Run
 
-From the repository root:
+From the repository root. These start the infrastructure and the services together; unseal Vault after `up`:
 
 ```bash
 # Development
 docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml run --rm vault-unseal
 docker compose -f docker-compose.dev.yml down
 
 # Production
 docker compose up -d --build
+docker compose run --rm vault-unseal
 docker compose down
 ```
 
-Development and Production are not run at the same time on one machine.
+Development and Production are not run at the same time on one machine. `down` also stops the infrastructure; its data is kept.

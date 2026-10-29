@@ -23,8 +23,8 @@ Apply one group at a time (design §8): stop after each group, report how to tes
 
 ## 4. Root wiring
 
-- [ ] 4.1 Add `infrastructure/docker-compose.yml` to `include:` in the root `docker-compose.yml` and `docker-compose.dev.yml`; verify `docker compose config --services` from the root lists `postgres`, `postgres-setup`, `keycloak`, `vault`, `ms-auth` for both files
-- [ ] 4.2 Update the root `README.md` with an infrastructure section (tools, ports, link to `infrastructure/README.md`, Local needs the infrastructure running); verify the commands it lists run as written
+- [x] 4.1 Add `infrastructure/docker-compose.yml` to `include:` in the root `docker-compose.yml` and `docker-compose.dev.yml`; verify `docker compose config --services` from the root lists `postgres`, `postgres-setup`, `keycloak`, `vault`, `ms-auth` for both files
+- [x] 4.2 Update the root `README.md` with an infrastructure section (tools, ports, link to `infrastructure/README.md`, Local needs the infrastructure running); verify the commands it lists run as written
 
 ## 5. ms-auth foundation
 

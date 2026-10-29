@@ -1,4 +1,5 @@
 name: carsales
 
 include:
+  - infrastructure/docker-compose.yml
   - services/ms-auth/docker-compose.yml
