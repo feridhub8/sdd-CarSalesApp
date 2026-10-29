@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/api-gateway/">
+    <Project Path="api-gateway/src/WebApi/WebApi.csproj" />
+  </Folder>
   <Folder Name="/services/" />
   <Folder Name="/services/ms-auth/">
     <Project Path="services/ms-auth/src/WebApi/WebApi.csproj" />

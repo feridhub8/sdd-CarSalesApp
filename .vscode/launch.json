@@ -2,6 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "api-gateway (Local)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build api-gateway",
+      "program": "${workspaceFolder}/api-gateway/src/WebApi/bin/Debug/net10.0/WebApi.dll",
+      "cwd": "${workspaceFolder}/api-gateway/src/WebApi",
+      "launchSettingsFilePath": "${workspaceFolder}/api-gateway/src/WebApi/Properties/launchSettings.json",
+      "launchSettingsProfile": "http"
+    },
+    {
       "name": "ms-auth (Local)",
       "type": "coreclr",
       "request": "launch",
@@ -16,6 +26,7 @@
     {
       "name": "All services (Local)",
       "configurations": [
+        "api-gateway (Local)",
         "ms-auth (Local)"
       ],
       "stopAll": true
