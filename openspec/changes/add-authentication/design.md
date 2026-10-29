@@ -153,6 +153,7 @@ GET  api/v1/Auth/Me       --> GetUserByIdQuery(sub) -> UserService.GetById   -->
 | `Keycloak:Realm` | `carsales` | `carsalesDev` | `carsalesDev` |
 | `Keycloak:ClientId` | `ms-auth` | (base) | (base) |
 | `Vault:Address` | `http://vault:8200` | (base) | `http://localhost:8200` |
+| `Vault:Mount` | `carsales` | (base) | (base) |
 | `Vault:SecretPath` | `ms-auth` | `ms-authDev` | `ms-authDev` |
 
 - `Keycloak:ClientSecret` comes only from Vault.
@@ -177,7 +178,7 @@ GET  api/v1/Auth/Me       --> GetUserByIdQuery(sub) -> UserService.GetById   -->
 - `Program.cs` stays short. Setup goes through `Init<Area>()` classes in `Extensions/V1`:
   - `SecretExtensions`
   - `LibraryExtensions` (MediatR, Mapster, FluentValidation)
-  - `ApiExtensions` (controllers, versioning)
+  - `ApiVersioningExtensions` (controllers, versioning)
   - `KeycloakExtensions` (options, typed clients)
   - `AuthenticationExtensions` (JwtBearer, session check)
   - `SwaggerExtensions` (Local and Development only)

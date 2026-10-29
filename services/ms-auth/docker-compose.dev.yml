@@ -6,6 +6,7 @@ services:
       context: ../..
       dockerfile: services/ms-auth/Dockerfile
     restart: unless-stopped
+    env_file: .env
     ports:
       - "6001:8080"
     environment:

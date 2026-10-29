@@ -28,11 +28,11 @@ Apply one group at a time (design §8): stop after each group, report how to tes
 
 ## 5. ms-auth foundation
 
-- [ ] 5.1 Add the NuGet packages from design §7 to `WebApi.csproj`; verify `dotnet build` passes with 0 warnings
-- [ ] 5.2 Add `appsettings.json`, `appsettings.Development.json`, and `appsettings.Local.json` values from design §6, plus `services/ms-auth/.env.example` with `VAULT_ROLE_ID=` and `VAULT_SECRET_ID=`; verify `.env` is git-ignored and `.env.example` is not
-- [ ] 5.3 Add `Extensions/V1/SecretExtensions` (DotNetEnv, AppRole login, KV read into configuration, fail-fast messages) and call it first in `Program.cs`; verify that Local startup reads `Keycloak:ClientSecret` without logging it, and fails with a clear message for empty values, a wrong secret id, and a sealed Vault (the message names `vault-unseal`)
-- [ ] 5.4 Add `LibraryExtensions`, `ApiExtensions` (controllers and API versioning), `SwaggerExtensions` (Bearer scheme, Local and Development only), `HealthCheckExtensions`, `Exceptions/V1` (`ConflictException`, `UnauthorizedException`), and `Middlewares/V1/ExceptionHandlingMiddleware`; verify `/health` returns 200 and `/swagger` opens in Local
-- [ ] 5.5 Add `env_file: .env` to `services/ms-auth/docker-compose.yml` and `docker-compose.dev.yml`; verify the Development container starts, reads its secret from `ms-authDev`, and returns 200 on `http://localhost:6001/health`
+- [x] 5.1 Add the NuGet packages from design §7 to `WebApi.csproj`; verify `dotnet build` passes with 0 warnings
+- [x] 5.2 Add `appsettings.json`, `appsettings.Development.json`, and `appsettings.Local.json` values from design §6, plus `services/ms-auth/.env.example` with `VAULT_ROLE_ID=` and `VAULT_SECRET_ID=`; verify `.env` is git-ignored and `.env.example` is not
+- [x] 5.3 Add `Extensions/V1/SecretExtensions` (DotNetEnv, AppRole login, KV read into configuration, fail-fast messages) and call it first in `Program.cs`; verify that Local startup reads `Keycloak:ClientSecret` without logging it, and fails with a clear message for empty values, a wrong secret id, and a sealed Vault (the message names `vault-unseal`)
+- [x] 5.4 Add `LibraryExtensions`, `ApiVersioningExtensions` (controllers and API versioning), `SwaggerExtensions` (Bearer scheme, Local and Development only), `HealthCheckExtensions`, `Exceptions/V1` (`ConflictException`, `UnauthorizedException`), and `Middlewares/V1/ExceptionHandlingMiddleware`; verify `/health` returns 200 and `/swagger` opens in Local
+- [x] 5.5 Add `env_file: .env` to `services/ms-auth/docker-compose.yml` and `docker-compose.dev.yml`; verify the Development container starts, reads its secret from `ms-authDev`, and returns 200 on `http://localhost:6001/health`
 
 ## 6. Authentication endpoints
 
