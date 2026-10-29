@@ -10,7 +10,7 @@ The single entry point for CarSales clients. A YARP reverse proxy that forwards 
 
 Anything else gets `404` from the gateway. Paths are not rewritten, so a service is called on the same path the client used (the refresh token cookie's `Path=/api/v1/Auth` keeps working). Controller names must therefore be unique across services.
 
-`GET /health` reports the gateway itself, whatever the state of the services. A service that cannot be reached gives `502` or `503`.
+`GET /health` reports the gateway itself, whatever the state of the services. A service that cannot be reached gives `502`, `503`, or `504` within a few seconds (connect timeout 3 seconds).
 
 ## Adding a service
 
@@ -62,11 +62,29 @@ Start `ms-auth` first (see [`services/ms-auth/README.md`](../services/ms-auth/RE
 dotnet run --project src/WebApi
 ```
 
-The app starts in the `Local` environment on `http://localhost:5000` and forwards to `ms-auth` on `http://localhost:5001`. In VS Code, **All services (Local)** starts the gateway and every service together. Stop it with `Ctrl+C`.
+The app starts in the `Local` environment on `http://localhost:5080` and forwards to `ms-auth` on `http://localhost:5001`. In VS Code, **All services (Local)** starts the gateway and every service together. Stop it with `Ctrl+C`.
 
 ```bash
-curl -i -X POST http://localhost:5000/api/v1/Auth/Login -H "Content-Type: application/json" \
+curl -i -X POST http://localhost:5080/api/v1/Auth/Login -H "Content-Type: application/json" \
   -d '{"login":"jane","password":"Secret123!"}'
 ```
 
-**macOS:** AirPlay Receiver listens on ports `5000` and `7000` when it is turned on. If the gateway cannot bind, turn it off in System Settings → General → AirDrop & Handoff.
+## Docker
+
+Requires the `carsales_network` network. The root compose files start the gateway together with the infrastructure and every service (see the root [`README.md`](../README.md)). On its own, from `api-gateway/`:
+
+```bash
+# Development: http://localhost:6080
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml down
+
+# Production: http://localhost:7080
+docker compose up -d --build
+docker compose down
+```
+
+In Docker the gateway is the only container clients can reach: services publish no host port. To run several replicas of a service, scale it; the gateway picks the replicas up within 10 seconds:
+
+```bash
+docker compose up -d --scale ms-auth=3   # from the repository root
+```

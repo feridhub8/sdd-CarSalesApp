@@ -7,16 +7,16 @@ Gives clients one address for every CarSales service: the gateway forwards each 
 ## ADDED Requirements
 
 ### Requirement: Single entry point
-In Development and Production, clients SHALL reach microservices only through the gateway, on port `6000` and `7000` respectively. Microservices MUST NOT be reachable from the host there. In Local, the gateway SHALL listen on `5000`, and services SHALL stay reachable directly on their own ports.
+In Development and Production, clients SHALL reach microservices only through the gateway, on port `6080` and `7080` respectively. Microservices MUST NOT be reachable from the host there. In Local, the gateway SHALL listen on `5080`, and services SHALL stay reachable directly on their own ports.
 
 #### Scenario: Service port closed in Docker
 - **WHEN** the Development or Production stack is running and a client connects to `ms-auth` on a host port (`6001` or `7001`)
 - **THEN** the connection is refused
-- **AND** the same request sent to the gateway (`6000` or `7000`) reaches `ms-auth`
+- **AND** the same request sent to the gateway (`6080` or `7080`) reaches `ms-auth`
 
 #### Scenario: Local runs reach services directly
 - **WHEN** the gateway and `ms-auth` run locally
-- **THEN** a request to the gateway on `5000` reaches `ms-auth`
+- **THEN** a request to the gateway on `5080` reaches `ms-auth`
 - **AND** a request to `ms-auth` directly on `5001` also succeeds
 
 ### Requirement: Forward auth requests unchanged
@@ -58,11 +58,11 @@ When a service runs several replicas, the gateway SHALL spread requests across a
 - **THEN** within 30 seconds the gateway sends requests to every running replica and to none that were removed
 
 ### Requirement: Service unavailable
-When the service that owns a route cannot be reached, the gateway SHALL respond with 502 Bad Gateway or 503 Service Unavailable instead of waiting indefinitely. It SHALL keep running and resume forwarding once the service is back.
+When the service that owns a route cannot be reached, the gateway SHALL respond within 5 seconds with 502 Bad Gateway, 503 Service Unavailable, or 504 Gateway Timeout. It SHALL keep running and resume forwarding once the service is back.
 
 #### Scenario: Service stopped
 - **WHEN** `ms-auth` is stopped and a client sends a request to an auth path through the gateway
-- **THEN** the gateway responds with 502 or 503
+- **THEN** the gateway responds with 502, 503, or 504 within 5 seconds
 
 #### Scenario: Service comes back
 - **WHEN** `ms-auth` is started again after being stopped

@@ -67,10 +67,13 @@
 
 | | Local | Development | Production |
 |---|---|---|---|
-| `api-gateway` | `5000` (`launchSettings.json`) | `6000:8080` | `7000:8080` |
+| `api-gateway` | `5080` (`launchSettings.json`) | `6080:8080` | `7080:8080` |
 | `ms-auth` | `5001` (`launchSettings.json`) | no host port | no host port |
 
-- The gateway takes service number `0`, which fits the existing rule: the first digit is the environment, the last digits are the service number.
+- The gateway takes service number `80`, which fits the existing rule: the first digit is the environment, the last digits are the service number.
+  - `80` reads as the HTTP entry point.
+  - `0` was tried first and rejected. Chrome and Firefox block `6000` as an unsafe port (X11), so a Development web frontend could never call it. macOS AirPlay Receiver also listens on `5000` and `7000`.
+  - `5080`, `6080`, and `7080` are on neither list.
 - Removing the service ports in both Docker environments is the user's decision. Development and Production then behave the same, and direct access to a service is a Local-only debugging path.
 - **Consequences:**
   - `--scale ms-auth=N` works in both Docker environments.
@@ -91,10 +94,14 @@
   - YARP keeps the original host name as the `Host` header for the resolved destinations.
 - The cluster uses `LoadBalancingPolicy: RoundRobin`. The default `PowerOfTwoChoices` also spreads load, but RoundRobin is easy to verify: consecutive requests visibly hit different replicas in the gateway's logs.
 - **Rejected alternative:** shortening `PooledConnectionLifetime` alone. It only spreads load by chance at reconnect time and gives YARP no per-replica view for balancing or passive health.
-- **Down services:**
-  - If the name does not resolve, there are no destinations and YARP answers 503.
-  - If the connection is refused, YARP answers 502.
-  - Both meet the spec. After the service returns, the next refresh, within 10 seconds, restores the destinations.
+- **Connect timeout of 3 seconds** (`ConfigureHttpClient`, `SocketsHttpHandler.ConnectTimeout`), down from YARP's default of 15 seconds.
+  - A stopped container's IP stays in the destination list until the next refresh, up to 10 seconds.
+  - Nothing answers on that IP, so the connection attempt does not fail fast, it times out. With the default, a request waited 15 seconds and got 504 (measured).
+  - Inside the Docker network a connection takes milliseconds, so 3 seconds still leaves a wide margin.
+- **Down services (measured):**
+  - A request to a stale IP gets 504 after the connect timeout.
+  - Once the name no longer resolves, YARP answers 502, or 503 when no destination is left.
+  - All are within the spec's 5 seconds. After the service returns, the next refresh, within 10 seconds, restores the destinations.
 
 ### 6. Layout and repository wiring
 
@@ -102,7 +109,7 @@
 api-gateway/
 ├── src/WebApi/
 │   ├── Extensions/V1/        ReverseProxyExtensions.cs, HealthCheckExtensions.cs
-│   ├── Properties/launchSettings.json   (http://localhost:5000, Local, no browser)
+│   ├── Properties/launchSettings.json   (http://localhost:5080, Local, no browser)
 │   ├── appsettings.json      routes + cluster ms-auth -> http://ms-auth:8080
 │   ├── appsettings.Development.json     (empty object; Docker settings are the base)
 │   ├── appsettings.Local.json           ms-auth destination -> http://localhost:5001
@@ -110,8 +117,8 @@ api-gateway/
 │   └── WebApi.csproj         Nullable, ImplicitUsings, TreatWarningsAsErrors
 ├── ApiGateway.slnx
 ├── Dockerfile                repository root as build context, like ms-auth
-├── docker-compose.yml        name: carsales, 7000:8080, Production
-├── docker-compose.dev.yml    name: carsales, 6000:8080, Development
+├── docker-compose.yml        name: carsales, 7080:8080, Production
+├── docker-compose.dev.yml    name: carsales, 6080:8080, Development
 └── README.md
 ```
 
@@ -125,7 +132,7 @@ api-gateway/
 ### 7. Global rule changes (`sdd-global-rules/microservices.md`)
 
 - **Docker, host ports line:** replace "`Development` and `Production` map their port to `8080` in the compose files" with:
-  - In `Development` and `Production` only `api-gateway` publishes a host port, using service number `0`.
+  - In `Development` and `Production` only `api-gateway` publishes a host port, using service number `80`.
   - Microservices publish none.
   - `Local` keeps per-service ports in `launchSettings.json`.
 - **Repositories:** add that `api-gateway` follows the service root layout, its `<Name>` is `ApiGateway`, and its `WebApi/` has no `Data/`. It counts as a service wherever the rules list services: solution, root compose files, `.vscode`.
@@ -135,10 +142,9 @@ api-gateway/
 
 - [Every new service needs a gateway route] → The route and cluster are added in the same change as the service. The gateway README shows the two-entry pattern.
 - [Development Swagger is unreachable] → Use Swagger in Local, or temporarily uncomment the port in `ms-auth/docker-compose.dev.yml` (decision 4). Swagger through the gateway is later work and restores it for good.
-- [macOS AirPlay Receiver listens on `5000` and `7000` when enabled] → Those ports are free on this machine today. If they clash, turn off AirPlay Receiver in System Settings → General → AirDrop & Handoff. The gateway README notes it.
-- [Up to 10 seconds of stale replicas after scaling] → A removed replica gets connection-refused (502) until the next refresh. That is acceptable at this stage; active health checks can be added later.
+- [Up to 10 seconds of stale replicas after scaling down or stopping] → Requests that land on a removed replica get 504 after the 3-second connect timeout until the next refresh. That is acceptable at this stage; active health checks can be added later to drop dead replicas sooner.
 - [The refresh cookie is `Secure` while the gateway is HTTP] → Browsers accept it on `localhost`. A real server needs TLS at the gateway first (later work, noted in the proposal).
-- [Existing test scripts target `6001` and `7001`] → Verification in this change runs the same scenarios against `6000` and `7000`.
+- [Existing test scripts target `6001` and `7001`] → Verification in this change runs the same scenarios against `6080` and `7080`.
 
 ## Migration Plan
 

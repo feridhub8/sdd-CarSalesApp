@@ -6,7 +6,10 @@ Car sales platform built as .NET 10 microservices.
 
 | Service | Folder |
 |---|---|
+| api-gateway | `api-gateway/` |
 | ms-auth | `services/ms-auth/` |
+
+Clients use only `api-gateway`. It forwards each request to the service that owns it (see [`api-gateway/README.md`](api-gateway/README.md)).
 
 ## Infrastructure
 
@@ -33,13 +36,15 @@ docker compose -f infrastructure/docker-compose.yml run --rm vault-unseal
 
 ## Ports
 
-The first digit is the environment, the last digits are the service number.
+The first digit is the environment, the last digits are the service number. `api-gateway` is number `80`.
 
-| Environment | Runs with | Port range | ms-auth |
+| Environment | Runs with | api-gateway | ms-auth |
 |---|---|---|---|
-| Local | `dotnet run` / IDE | `5xxx` | `5001` |
-| Development | Docker, `docker-compose.dev.yml` | `6xxx` | `6001` |
-| Production | Docker, `docker-compose.yml` | `7xxx` | `7001` |
+| Local | `dotnet run` / IDE | `5080` | `5001` |
+| Development | Docker, `docker-compose.dev.yml` | `6080` | no host port |
+| Production | Docker, `docker-compose.yml` | `7080` | no host port |
+
+In Docker, services publish no host port: clients reach them only through the gateway, and services can be scaled with `--scale`. Local runs reach every service directly as well.
 
 ## Docker
 
@@ -53,7 +58,7 @@ docker network create carsales_network
 
 ### Run
 
-From the repository root. These start the infrastructure and the services together; unseal Vault after `up`:
+From the repository root. These start the infrastructure, the gateway, and the services together; unseal Vault after `up`. Clients then use `http://localhost:6080` (Development) or `http://localhost:7080` (Production):
 
 ```bash
 # Development

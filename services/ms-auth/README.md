@@ -111,13 +111,17 @@ curl -i -X POST $BASE/Logout -H "X-Client-Type: mobile" -H "Content-Type: applic
 Requires the `carsales_network` network and `services/ms-auth/.env` (passed to the container with `env_file`). From `services/ms-auth/`:
 
 ```bash
-# Development: http://localhost:6001, realm carsalesDev
+# Development: realm carsalesDev
 docker compose -f docker-compose.dev.yml up -d --build
 docker compose -f docker-compose.dev.yml down
 
-# Production: http://localhost:7001, realm carsales
+# Production: realm carsales
 docker compose up -d --build
 docker compose down
 ```
+
+In Docker, ms-auth publishes no host port. Clients reach it through [`api-gateway`](../../api-gateway/README.md) on `http://localhost:6080` (Development) or `http://localhost:7080` (Production), on the same paths, so the examples above work with `BASE=http://localhost:6080/api/v1/Auth` or `BASE=http://localhost:7080/api/v1/Auth`. Without a host port, ms-auth can be scaled: `docker compose up -d --scale ms-auth=3` from the repository root.
+
+**Temporary direct access in Development** (for example, to open Swagger): uncomment the `ports` block in `docker-compose.dev.yml` and run `up` again. ms-auth is then at `http://localhost:6001` and Swagger at `http://localhost:6001/swagger`. Comment the block back before committing; while it is active, `--scale` does not work.
 
 Health check: `GET /health`.
