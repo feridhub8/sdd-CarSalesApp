@@ -48,3 +48,6 @@ logs/
 
 # Graphify
 graphify-out/
+
+# Keycloak realm exports (contain users and secrets)
+infrastructure/keycloak-export/

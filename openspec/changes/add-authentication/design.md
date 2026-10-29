@@ -103,6 +103,8 @@ infrastructure/
   - **Services: AppRole.** ms-auth logs in at startup with `VAULT_ROLE_ID` and `VAULT_SECRET_ID` from `services/ms-auth/.env`, gets a short-lived token (1 hour), and reads its secrets. There is no long-lived token that can expire unnoticed. The role `ms-auth` has only the `ms-auth` policy, which can read `carsales/data/ms-auth` and `carsales/data/ms-authDev`.
   - **People: userpass.** An admin user with the `admin` policy signs in to the UI (`http://localhost:8200`) or the CLI with a username and password.
   - **Root token: revoked after setup.** It can do everything and never expires, so it is not kept. In an emergency, such as a lost admin password, `vault operator generate-root` with 3 unseal keys creates a temporary one. You revoke it again after the fix.
+    - Vault 2.x requires a token for `generate-root` by default. This would leave no way back once every admin login is lost.
+    - `vault.hcl` therefore sets `enable_unauthenticated_access = ["generate-root"]`. The cost is that anyone who can reach port 8200 can start or cancel a generation attempt, but no one can finish it without 3 unseal keys.
 - One-time setup after init, documented in `infrastructure/README.md` and run with the root token from the JSON file:
   1. Enable a KV v2 engine at `carsales`.
   2. Write the policies `admin` and `ms-auth`.

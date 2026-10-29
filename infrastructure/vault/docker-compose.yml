@@ -1,0 +1,58 @@
+name: carsales
+
+services:
+  vault:
+    image: hashicorp/vault:2.2.1
+    restart: unless-stopped
+    command: ["server"]
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    ports:
+      - "8200:8200"
+    volumes:
+      - ./config/vault.hcl:/vault/config/vault.hcl:ro
+      - ./config/policies:/vault/policies:ro
+      - vault_data:/vault/file
+    networks:
+      - carsales_network
+
+  vault-unseal:
+    image: hashicorp/vault:2.2.1
+    profiles: ["manual"]
+    restart: "no"
+    environment:
+      VAULT_ADDR: http://vault:8200
+    volumes:
+      - type: bind
+        source: ${VAULT_KEYS_FILE:-~/Desktop/carsales-vault-keys.json}
+        target: /keys.json
+        read_only: true
+        bind:
+          create_host_path: false
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        keys=$$(tr -d ' \n\r\t' < /keys.json | grep -o '"keys_base64":\[[^]]*\]' | grep -o '"[^",]*"' | tail -n +2 | tr -d '"')
+        for i in $$(seq 1 30); do
+          vault status >/dev/null 2>&1; s=$$?
+          [ $$s -ne 1 ] && break
+          sleep 1
+        done
+        [ $$s -eq 1 ] && { echo "Vault is not reachable at $$VAULT_ADDR"; exit 1; }
+        [ $$s -eq 0 ] && { echo "Vault is already unsealed"; exit 0; }
+        [ -n "$$keys" ] || { echo "No keys_base64 found in the keys file"; exit 1; }
+        for k in $$keys; do
+          vault operator unseal "$$k" >/dev/null || exit 1
+          vault status >/dev/null 2>&1 && { echo "Vault unsealed"; exit 0; }
+        done
+        echo "The keys did not unseal Vault"
+        exit 1
+    networks:
+      - carsales_network
+
+volumes:
+  vault_data:
+
+networks:
+  carsales_network:
+    external: true

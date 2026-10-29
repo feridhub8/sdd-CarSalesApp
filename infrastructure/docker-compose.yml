@@ -3,3 +3,4 @@ name: carsales
 include:
   - postgres/docker-compose.yml
   - keycloak/docker-compose.yml
+  - vault/docker-compose.yml
