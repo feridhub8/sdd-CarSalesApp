@@ -47,8 +47,8 @@ Apply one group at a time (design §8): stop after each group, report how to tes
 
 ## 7. Integration check
 
-- [ ] 7.1 From a clean state, run all five endpoints in each environment: Local (`5001`, `carsalesDev`), Development container (`6001`, `carsalesDev`), and Production container (`7001`, `carsales`); verify a user registered in Production cannot log in through Local and the reverse
-- [ ] 7.2 Run `graphify update .`; verify it finishes without errors
+- [x] 7.1 From a clean state, run all five endpoints in each environment: Local (`5001`, `carsalesDev`), Development container (`6001`, `carsalesDev`), and Production container (`7001`, `carsales`); verify a user registered in Production cannot log in through Local and the reverse
+- [x] 7.2 Run `graphify update .`; verify it finishes without errors
 
 ## Workflow follow-up
 
