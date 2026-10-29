@@ -9,7 +9,8 @@ context: |
     - api-gateway/          YARP
     - infrastructure/       Docker setup of infrastructure tools
     - CarSales.slnx         root solution referencing every project
-    - docker-compose.yml    root compose that includes every service and infrastructure compose file
+    - docker-compose.yml    root compose (Production) that includes every service and infrastructure compose file
+    - docker-compose.dev.yml  root compose (Development) with the same includes, using the services' dev compose files
 
   Database: PostgreSQL. One server in Docker holds the development and production
   databases, a database per service. Production databases may later move to a separate
