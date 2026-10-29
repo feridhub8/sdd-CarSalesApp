@@ -27,6 +27,8 @@ for realm in carsales carsalesDev; do
     -s registrationEmailAsUsername=false \
     -s loginWithEmailAllowed=true \
     -s duplicateEmailsAllowed=false \
+    -s revokeRefreshToken=true \
+    -s refreshTokenMaxReuse=0 \
     -s "passwordPolicy=$PASSWORD_POLICY"
   echo "Realm '$realm' settings applied"
 done
