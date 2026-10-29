@@ -32,7 +32,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType<GetUserOkResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDto dto, CancellationToken ct)
+    public async Task<ActionResult<GetUserOkResponseDto>> Register([FromBody] RegisterUserDto dto, CancellationToken ct)
     {
         var user = await this.mediator.Send(new RegisterUserCommand(dto), ct);
         return this.StatusCode(StatusCodes.Status201Created, user);
@@ -42,20 +42,20 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType<GetTokenOkResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login(
+    public async Task<ActionResult<GetTokenOkResponseDto>> Login(
         [FromBody] LoginUserDto dto,
         [FromHeader(Name = ClientTypeHeader)] string? clientType,
         CancellationToken ct)
     {
         var token = await this.mediator.Send(new LoginUserCommand(dto), ct);
-        return this.Ok(this.DeliverToken(token, ParseClientType(clientType)));
+        return this.DeliverToken(token, ParseClientType(clientType));
     }
 
     [HttpPost("Refresh")]
     [ProducesResponseType<GetTokenOkResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh(
+    public async Task<ActionResult<GetTokenOkResponseDto>> Refresh(
         [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] RefreshTokenDto? dto,
         [FromHeader(Name = ClientTypeHeader)] string? clientType,
         CancellationToken ct)
@@ -66,7 +66,7 @@ public sealed class AuthController : ControllerBase
         try
         {
             var token = await this.mediator.Send(new RefreshTokenCommand(new RefreshTokenDto { RefreshToken = refreshToken }), ct);
-            return this.Ok(this.DeliverToken(token, client));
+            return this.DeliverToken(token, client);
         }
         catch (UnauthorizedException) when (client == ClientType.Web)
         {
@@ -106,14 +106,14 @@ public sealed class AuthController : ControllerBase
     [HttpGet("Me")]
     [ProducesResponseType<GetUserOkResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Me(CancellationToken ct)
+    public async Task<ActionResult<GetUserOkResponseDto>> Me(CancellationToken ct)
     {
         if (!Guid.TryParse(this.User.FindFirst(SubjectClaim)?.Value, out var userId))
         {
             throw new UnauthorizedException("The access token has no valid subject.");
         }
 
-        return this.Ok(await this.mediator.Send(new GetUserByIdQuery(userId), ct));
+        return await this.mediator.Send(new GetUserByIdQuery(userId), ct);
     }
 
     private static ClientType ParseClientType(string? clientType)
