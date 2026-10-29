@@ -36,14 +36,14 @@ Apply one group at a time (design §8): stop after each group, report how to tes
 
 ## 6. Authentication endpoints
 
-- [ ] 6.1 Add `Models/V1` (`KeycloakOptions`, `VaultOptions`, Keycloak token and user representations), `KeycloakExtensions` (options and typed HTTP clients), and the repositories `UserKeycloakRepository` (service account token cached until 30 s before expiry) and `TokenKeycloakRepository` with their `Base/` interfaces and error translation; verify the build passes
-- [ ] 6.2 Add `UserService` and `TokenService` with their `Base/` interfaces, plus the DTOs and the Mapster mappings from design §5 (one `IRegister` per file); verify the build passes and `TypeAdapterConfig.Compile()` succeeds at startup
-- [ ] 6.3 Implement register (command, validator, handler, `POST Register`); verify the spec scenarios: 201 with the user, 409 on a duplicate email, 400 on invalid input, user visible in the `carsalesDev` realm
-- [ ] 6.4 Implement login (command, validator, handler, `POST Login`); verify the spec scenarios: 200 with tokens, 401 with the same message for a wrong password or unknown email, 400 on missing fields
-- [ ] 6.5 Implement refresh (command, validator, handler, `POST Refresh`); verify the spec scenarios: 200 with new tokens, 401 on a malformed or expired token
-- [ ] 6.6 Implement logout (command, validator, handler, `POST Logout`); verify the spec scenarios: 204, a later refresh with the same token gives 401, and logging out with an invalid token gives 401
-- [ ] 6.7 Add `AuthenticationExtensions` (JwtBearer with the introspection session check in `OnTokenValidated`) and implement me (query, validator, handler, `GET Me` with `[Authorize]`); verify the spec scenarios: 200 with the profile, 401 without a token, 401 with a `carsales` realm token against Local, and 401 with an unexpired access token right after logout
-- [ ] 6.8 Update `services/ms-auth/README.md` (endpoints, `.env` setup, needs the infrastructure running and Vault unsealed); verify the documented curl commands work as written
+- [x] 6.1 Add `Models/V1` (`KeycloakOptions`, `VaultOptions`, Keycloak token and user representations), `KeycloakExtensions` (options and typed HTTP clients), and the repositories `UserKeycloakRepository` (service account token cached until 30 s before expiry) and `TokenKeycloakRepository` with their `Base/` interfaces and error translation; verify the build passes
+- [x] 6.2 Add `UserService` and `TokenService` with their `Base/` interfaces, plus the DTOs and the Mapster mappings from design §5 (one `IRegister` per file); verify the build passes and `TypeAdapterConfig.Compile()` succeeds at startup
+- [x] 6.3 Implement register (command, validator, handler, `POST Register`); verify the spec scenarios: 201 with the user, 409 on a duplicate email, 400 on invalid input, user visible in the `carsalesDev` realm
+- [x] 6.4 Implement login (command, validator, handler, `POST Login`); verify the spec scenarios: 200 with tokens, 401 with the same message for a wrong password or unknown email, 400 on missing fields
+- [x] 6.5 Implement refresh (command, validator, handler, `POST Refresh`); verify the spec scenarios: 200 with new tokens, 401 on a malformed or expired token
+- [x] 6.6 Implement logout (command, validator, handler, `POST Logout`); verify the spec scenarios: 204, a later refresh with the same token gives 401, and logging out with an invalid token gives 401
+- [x] 6.7 Add `AuthenticationExtensions` (JwtBearer with the introspection session check in `OnTokenValidated`) and implement me (query, validator, handler, `GET Me` with `[Authorize]`); verify the spec scenarios: 200 with the profile, 401 without a token, 401 with a `carsales` realm token against Local, and 401 with an unexpired access token right after logout
+- [x] 6.8 Update `services/ms-auth/README.md` (endpoints, `.env` setup, needs the infrastructure running and Vault unsealed); verify the documented curl commands work as written
 
 ## 7. Integration check
 

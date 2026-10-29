@@ -1,0 +1,6 @@
+using MediatR;
+using WebApi.Data.Auth.Dtos.V1;
+
+namespace WebApi.Data.Auth.Commands.V1;
+
+public sealed record RegisterUserCommand(RegisterUserDto Dto) : IRequest<GetUserOkResponseDto>;

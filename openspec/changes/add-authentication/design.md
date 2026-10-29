@@ -130,9 +130,12 @@ GET  api/v1/Auth/Me       --> GetUserByIdQuery(sub) -> UserService.GetById   -->
 
 - Feature folder `Data/Auth`, laid out as the global rules require.
 - Keycloak's JSON shapes live in `Models/V1`, along with `KeycloakOptions` and `VaultOptions`. Mapster maps them to and from the DTOs. Each mapping is one `IRegister` class in its own file, named `<Source>_<Destination>`.
-- Each repository uses a typed `HttpClient` against `Keycloak:BaseUrl`.
+- Both repositories are singletons that create a named `HttpClient` (`IHttpClientFactory`) against `Keycloak:BaseUrl`.
+  - Singletons are used so the service account token cache survives across requests.
+  - `KeycloakExtensions` registers the options, the client, the repositories, and the services.
 - The admin API repository gets a service account token through `client_credentials`. It caches the token until 30 seconds before it expires.
-- Registration sends the user and the password credential in a single admin API call. The new user's id is read from the `Location` header.
+- Registration sends the user and the password credential in a single admin API call. The new user's id is read from the `Location` header. The user is then read back, so the response shows what Keycloak stored, such as the email in lowercase.
+- Logout first introspects the refresh token and answers 401 if its session is no longer active. Keycloak's logout endpoint answers 204 even for a session that has already ended.
 - Keycloak errors are translated in the repositories:
   - `409` → `ConflictException`
   - `401` or `400 invalid_grant` → `UnauthorizedException`
