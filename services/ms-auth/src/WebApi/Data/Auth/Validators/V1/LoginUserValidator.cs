@@ -7,7 +7,7 @@ public sealed class LoginUserValidator : AbstractValidator<LoginUserCommand>
 {
     public LoginUserValidator()
     {
-        RuleFor(command => command.Dto.Email).NotEmpty();
+        RuleFor(command => command.Dto.Login).NotEmpty();
         RuleFor(command => command.Dto.Password).NotEmpty();
     }
 }

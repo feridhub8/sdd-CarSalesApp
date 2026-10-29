@@ -4,7 +4,7 @@ namespace WebApi.Data.Auth.Repositories.V1.Base;
 
 public interface ITokenRepository
 {
-    Task<KeycloakTokenResponse> GetByPasswordAsync(string email, string password, CancellationToken ct = default);
+    Task<KeycloakTokenResponse> GetByPasswordAsync(string login, string password, CancellationToken ct = default);
 
     Task<KeycloakTokenResponse> RefreshAsync(string refreshToken, CancellationToken ct = default);
 

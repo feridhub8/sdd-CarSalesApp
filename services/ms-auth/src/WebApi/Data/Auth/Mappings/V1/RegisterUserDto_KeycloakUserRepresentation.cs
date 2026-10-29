@@ -10,7 +10,6 @@ public sealed class RegisterUserDto_KeycloakUserRepresentation : IRegister
     {
         config.NewConfig<RegisterUserDto, KeycloakUserRepresentation>()
             .Ignore(destination => destination.Id!)
-            .Map(destination => destination.Username, source => source.Email)
             .Map(destination => destination.Enabled, _ => true)
             .Map(destination => destination.Credentials, source => new List<KeycloakCredentialRepresentation>
             {

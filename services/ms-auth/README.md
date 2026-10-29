@@ -45,11 +45,16 @@ All under `api/v1/Auth`. Errors are returned as ProblemDetails.
 
 | Endpoint | Body | Success | Errors |
 |---|---|---|---|
-| `POST Register` | `email`, `password` (8+ chars), `firstName`, `lastName` | `201` user (`id`, `email`, `firstName`, `lastName`), no tokens | `400` invalid fields, `409` email exists |
-| `POST Login` | `email`, `password` | `200` `accessToken`, `refreshToken`, `expiresIn`, `refreshExpiresIn`, `tokenType` | `400` missing fields, `401` wrong email or password |
+| `POST Register` | `username`, `email`, `password`, `firstName`, `lastName` | `201` user (`id`, `username`, `email`, `firstName`, `lastName`), no tokens | `400` invalid fields, `409` username or email exists |
+| `POST Login` | `login` (username or email), `password` | `200` `accessToken`, `refreshToken`, `expiresIn`, `refreshExpiresIn`, `tokenType` | `400` missing fields, `401` wrong login or password |
 | `POST Refresh` | `refreshToken` | `200` new token pair | `400` missing field, `401` invalid, expired, or signed-out token |
 | `POST Logout` | `refreshToken` | `204`; the session ends, its refresh and access tokens stop working | `400` missing field, `401` invalid, expired, or signed-out token |
 | `GET Me` | header `Authorization: Bearer <accessToken>` | `200` user | `401` missing, invalid, expired, signed-out, or other-environment token |
+
+Rules:
+
+- `username`: 3–30 characters of letters, digits, `.`, `_` or `-`; case-insensitive (stored in lowercase).
+- `password`: at least 8 characters with an uppercase letter, a lowercase letter, a digit, and a symbol. Each broken rule is listed in the `400` response. Keycloak enforces the same policy.
 
 Example against Local:
 
@@ -57,10 +62,10 @@ Example against Local:
 BASE=http://localhost:5001/api/v1/Auth
 
 curl -i -X POST $BASE/Register -H "Content-Type: application/json" \
-  -d '{"email":"jane@example.com","password":"Secret123!","firstName":"Jane","lastName":"Doe"}'
+  -d '{"username":"jane","email":"jane@example.com","password":"Secret123!","firstName":"Jane","lastName":"Doe"}'
 
 curl -s -X POST $BASE/Login -H "Content-Type: application/json" \
-  -d '{"email":"jane@example.com","password":"Secret123!"}'
+  -d '{"login":"jane","password":"Secret123!"}'
 # copy accessToken and refreshToken from the response
 
 curl -s $BASE/Me -H "Authorization: Bearer <accessToken>"

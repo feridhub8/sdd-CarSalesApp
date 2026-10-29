@@ -11,16 +11,16 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. ms-auth
 
-- [ ] 2.1 Add `Username` to `RegisterUserDto`, `GetUserOkResponseDto`, and the register mapping; add the username and password rules to `RegisterUserValidator` (design §2–3); verify the build passes and `TypeAdapterConfig.Compile()` succeeds at startup
-- [ ] 2.2 Rename `Email` to `Login` in `LoginUserDto`, its validator, `ITokenService`, and `ITokenRepository`; verify the build passes
-- [ ] 2.3 Translate the Keycloak 409 messages (username / email) and the `400 invalidPassword…` backstop in `UserKeycloakRepository` (design §3–4); verify the build passes
-- [ ] 2.4 Verify the spec scenarios in Local: 201 with username, 409 for a taken username in another letter case, 409 for a taken email, 400 for each weak-password rule with one message per rule, 400 for a bad username (too short, `@`, space), login 200 with the username and with the email, 401 for wrong credentials, `Me` returns the username; the earlier refresh, logout, and `Me` 401 scenarios still pass
-- [ ] 2.5 Update `services/ms-auth/README.md` (register body with `username` and the password rules, login body with `login`); verify the documented curl commands work as written
+- [x] 2.1 Add `Username` to `RegisterUserDto`, `GetUserOkResponseDto`, and the register mapping; add the username and password rules to `RegisterUserValidator` (design §2–3); verify the build passes and `TypeAdapterConfig.Compile()` succeeds at startup
+- [x] 2.2 Rename `Email` to `Login` in `LoginUserDto`, its validator, `ITokenService`, and `ITokenRepository`; verify the build passes
+- [x] 2.3 Translate the Keycloak 409 messages (username / email) and the `400 invalidPassword…` backstop in `UserKeycloakRepository` (design §3–4); verify the build passes
+- [x] 2.4 Verify the spec scenarios in Local: 201 with username, 409 for a taken username in another letter case, 409 for a taken email, 400 for each weak-password rule with one message per rule, 400 for a bad username (too short, `@`, space), login 200 with the username and with the email, 401 for wrong credentials, `Me` returns the username; the earlier refresh, logout, and `Me` 401 scenarios still pass
+- [x] 2.5 Update `services/ms-auth/README.md` (register body with `username` and the password rules, login body with `login`); verify the documented curl commands work as written
 
 ## 3. Integration check
 
-- [ ] 3.1 Rebuild the Development and Production containers and run the scenarios against `6001` (`carsalesDev`) and `7001` (`carsales`); remove the test users afterwards
-- [ ] 3.2 Run `graphify update .`; verify it finishes without errors
+- [x] 3.1 Rebuild the Development and Production containers and run the scenarios against `6001` (`carsalesDev`) and `7001` (`carsales`); remove the test users afterwards
+- [x] 3.2 Run `graphify update .`; verify it finishes without errors
 
 ## Workflow follow-up
 

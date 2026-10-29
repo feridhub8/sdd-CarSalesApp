@@ -19,11 +19,11 @@ public sealed class TokenKeycloakRepository : ITokenRepository
 
     private string OpenIdConnectPath => $"realms/{this.options.Realm}/protocol/openid-connect";
 
-    public Task<KeycloakTokenResponse> GetByPasswordAsync(string email, string password, CancellationToken ct = default)
+    public Task<KeycloakTokenResponse> GetByPasswordAsync(string login, string password, CancellationToken ct = default)
     {
         return this.RequestTokenAsync(
-            [new("grant_type", "password"), new("username", email), new("password", password)],
-            "Invalid email or password.",
+            [new("grant_type", "password"), new("username", login), new("password", password)],
+            "Invalid login or password.",
             ct);
     }
 

@@ -24,7 +24,7 @@ public sealed class LoginUserHandler : IRequestHandler<LoginUserCommand, GetToke
     {
         await this.validator.ValidateAndThrowAsync(request, ct);
 
-        var token = await this.tokenService.LoginAsync(request.Dto.Email, request.Dto.Password, ct);
+        var token = await this.tokenService.LoginAsync(request.Dto.Login, request.Dto.Password, ct);
 
         return this.mapper.Map<GetTokenOkResponseDto>(token);
     }

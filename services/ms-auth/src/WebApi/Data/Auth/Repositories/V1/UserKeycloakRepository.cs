@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Options;
 using WebApi.Data.Auth.Models.V1;
 using WebApi.Data.Auth.Repositories.V1.Base;
@@ -43,7 +45,23 @@ public sealed class UserKeycloakRepository : IUserRepository
 
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            throw new ConflictException("An account with this email already exists.");
+            var conflict = await response.Content.ReadFromJsonAsync<KeycloakErrorResponse>(ct);
+            throw new ConflictException(conflict?.ErrorMessage switch
+            {
+                { } message when message.Contains("username", StringComparison.OrdinalIgnoreCase) => "An account with this username already exists.",
+                { } message when message.Contains("email", StringComparison.OrdinalIgnoreCase) => "An account with this email already exists.",
+                _ => "An account with these details already exists."
+            });
+        }
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            // Backstop: the validator checks the same policy, so this only fires if the two ever differ.
+            var error = await response.Content.ReadFromJsonAsync<KeycloakErrorResponse>(ct);
+            if (error?.Error?.StartsWith(KeycloakErrorResponse.InvalidPasswordPrefix, StringComparison.Ordinal) == true)
+            {
+                throw new ValidationException([new ValidationFailure("password", error.ErrorDescription ?? "The password does not meet the policy.")]);
+            }
         }
 
         response.EnsureSuccessStatusCode();

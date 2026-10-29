@@ -14,9 +14,9 @@ public sealed class TokenService : ITokenService
         this.tokenRepository = tokenRepository;
     }
 
-    public Task<KeycloakTokenResponse> LoginAsync(string email, string password, CancellationToken ct = default)
+    public Task<KeycloakTokenResponse> LoginAsync(string login, string password, CancellationToken ct = default)
     {
-        return this.tokenRepository.GetByPasswordAsync(email, password, ct);
+        return this.tokenRepository.GetByPasswordAsync(login, password, ct);
     }
 
     public Task<KeycloakTokenResponse> RefreshAsync(string refreshToken, CancellationToken ct = default)

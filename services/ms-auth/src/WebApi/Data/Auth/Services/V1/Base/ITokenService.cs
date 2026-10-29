@@ -4,7 +4,7 @@ namespace WebApi.Data.Auth.Services.V1.Base;
 
 public interface ITokenService
 {
-    Task<KeycloakTokenResponse> LoginAsync(string email, string password, CancellationToken ct = default);
+    Task<KeycloakTokenResponse> LoginAsync(string login, string password, CancellationToken ct = default);
 
     Task<KeycloakTokenResponse> RefreshAsync(string refreshToken, CancellationToken ct = default);
 
