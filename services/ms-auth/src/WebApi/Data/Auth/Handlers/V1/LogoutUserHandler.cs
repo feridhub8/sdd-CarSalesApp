@@ -16,10 +16,10 @@ public sealed class LogoutUserHandler : IRequestHandler<LogoutUserCommand>
         this.tokenService = tokenService;
     }
 
-    public async Task Handle(LogoutUserCommand request, CancellationToken cancellationToken)
+    public async Task Handle(LogoutUserCommand request, CancellationToken ct)
     {
-        await this.validator.ValidateAndThrowAsync(request, cancellationToken);
+        await this.validator.ValidateAndThrowAsync(request, ct);
 
-        await this.tokenService.LogoutAsync(request.Dto.RefreshToken, cancellationToken);
+        await this.tokenService.LogoutAsync(request.Dto.RefreshToken, ct);
     }
 }

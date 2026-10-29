@@ -21,12 +21,12 @@ public sealed class RegisterUserHandler : IRequestHandler<RegisterUserCommand, G
         this.userService = userService;
     }
 
-    public async Task<GetUserOkResponseDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<GetUserOkResponseDto> Handle(RegisterUserCommand request, CancellationToken ct)
     {
-        await this.validator.ValidateAndThrowAsync(request, cancellationToken);
+        await this.validator.ValidateAndThrowAsync(request, ct);
 
         var user = this.mapper.Map<KeycloakUserRepresentation>(request.Dto);
-        var created = await this.userService.RegisterAsync(user, cancellationToken);
+        var created = await this.userService.RegisterAsync(user, ct);
 
         return this.mapper.Map<GetUserOkResponseDto>(created);
     }

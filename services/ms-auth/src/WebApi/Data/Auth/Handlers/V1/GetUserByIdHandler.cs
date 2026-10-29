@@ -20,11 +20,11 @@ public sealed class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUs
         this.userService = userService;
     }
 
-    public async Task<GetUserOkResponseDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<GetUserOkResponseDto> Handle(GetUserByIdQuery request, CancellationToken ct)
     {
-        await this.validator.ValidateAndThrowAsync(request, cancellationToken);
+        await this.validator.ValidateAndThrowAsync(request, ct);
 
-        var user = await this.userService.GetByIdAsync(request.Id, cancellationToken);
+        var user = await this.userService.GetByIdAsync(request.Id, ct);
 
         return this.mapper.Map<GetUserOkResponseDto>(user);
     }

@@ -20,11 +20,11 @@ public sealed class LoginUserHandler : IRequestHandler<LoginUserCommand, GetToke
         this.tokenService = tokenService;
     }
 
-    public async Task<GetTokenOkResponseDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+    public async Task<GetTokenOkResponseDto> Handle(LoginUserCommand request, CancellationToken ct)
     {
-        await this.validator.ValidateAndThrowAsync(request, cancellationToken);
+        await this.validator.ValidateAndThrowAsync(request, ct);
 
-        var token = await this.tokenService.LoginAsync(request.Dto.Email, request.Dto.Password, cancellationToken);
+        var token = await this.tokenService.LoginAsync(request.Dto.Email, request.Dto.Password, ct);
 
         return this.mapper.Map<GetTokenOkResponseDto>(token);
     }

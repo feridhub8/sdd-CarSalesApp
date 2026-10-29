@@ -20,11 +20,11 @@ public sealed class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, G
         this.tokenService = tokenService;
     }
 
-    public async Task<GetTokenOkResponseDto> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async Task<GetTokenOkResponseDto> Handle(RefreshTokenCommand request, CancellationToken ct)
     {
-        await this.validator.ValidateAndThrowAsync(request, cancellationToken);
+        await this.validator.ValidateAndThrowAsync(request, ct);
 
-        var token = await this.tokenService.RefreshAsync(request.Dto.RefreshToken, cancellationToken);
+        var token = await this.tokenService.RefreshAsync(request.Dto.RefreshToken, ct);
 
         return this.mapper.Map<GetTokenOkResponseDto>(token);
     }
