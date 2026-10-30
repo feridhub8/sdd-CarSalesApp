@@ -121,3 +121,25 @@ curl -s $API/Brand
 curl -s "$API/Model?brandId=<brand id>"
 curl -s $API/City
 ```
+
+## Docker
+
+Requires the `carsales_network` network and `services/ms-listing/.env` (passed to the containers with `env_file`). From `services/ms-listing/`:
+
+```bash
+# Development: database listingDev, realm carsalesDev, Vault path ms-listingDev
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml down
+
+# Production: database listing, realm carsales, Vault path ms-listing
+docker compose up -d --build
+docker compose down
+```
+
+Each `up` first runs `ms-listing-migrate` (the same image with `--migrate`), which applies pending migrations and exits; `ms-listing` starts only after it exits with 0. If it fails, read its logs with `docker compose logs ms-listing-migrate`.
+
+In Docker, ms-listing publishes no host port. Clients reach it through [`api-gateway`](../../api-gateway/README.md) on `http://localhost:6080` (Development) or `http://localhost:7080` (Production), on the same paths, so the examples above work with `API=http://localhost:6080/api/v1` or `API=http://localhost:7080/api/v1`. It can be scaled, while migrations still run once: `docker compose up -d --scale ms-listing=2` from the repository root.
+
+**Temporary direct access in Development** (for example, to open Swagger): uncomment the `ports` block in `docker-compose.dev.yml` and run `up` again. ms-listing is then at `http://localhost:6002/swagger`. Comment the block back before committing; while it is active, `--scale` does not work.
+
+Health check: `GET /health`.

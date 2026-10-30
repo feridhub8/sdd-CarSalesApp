@@ -4,3 +4,4 @@ include:
   - infrastructure/docker-compose.yml
   - api-gateway/docker-compose.dev.yml
   - services/ms-auth/docker-compose.dev.yml
+  - services/ms-listing/docker-compose.dev.yml

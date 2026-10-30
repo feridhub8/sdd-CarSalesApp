@@ -235,6 +235,8 @@ docker compose up
 - [A migration that fails halfway leaves `ms-listing` not started] → Intended: the app never runs against a schema it does not expect. The migrate container's logs show the error.
 - [Roles in a token are fixed until the token expires] → A user who loses `admin` keeps it for up to the access token lifetime (5 minutes by default). Acceptable for an admin role.
 
+- [Found while testing: the gateway hangs when it starts before `ms-listing` resolves] → YARP's DNS resolver fails the whole initial configuration load when one host is unknown, which happens while `ms-listing` waits for `ms-listing-migrate`. The process then stops answering but does not exit, so Docker does not restart it. Until the separate `fix-gateway-startup` change, the root README documents the workaround: `docker compose restart api-gateway` after the services are up.
+
 ## Migration Plan
 
 1. **Infrastructure:**

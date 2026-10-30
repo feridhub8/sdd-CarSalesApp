@@ -35,10 +35,10 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 6. Docker and gateway
 
-- [ ] 6.1 Add `services/ms-listing/Dockerfile` and both compose files (`ms-listing-migrate` with `--migrate`, `ms-listing` depending on its successful completion, no host port, a commented `6002` block in Development), and include them in the root compose files; verify `docker compose config` for the root and service files
-- [ ] 6.2 Add the `brand`, `model`, and `city` routes and the `ms-listing` cluster to the gateway settings (Local `http://localhost:5002`), and the routes to `api-gateway/README.md`; verify in Local through `5080` that a public list, a `?brandId=` list, and an admin create reach `ms-listing` unchanged
-- [ ] 6.3 Verify Development and then Production through the gateway (`6080` / `7080`): the migrate container exits 0 before `ms-listing` starts and is a no-op on the second `up`; public reads, an admin create, update, delete, and restore work against `listingDev` / `listing` with `carsalesDev` / `carsales` admin tokens; a Development admin token is rejected in Production; `--scale ms-listing=2` serves requests from both replicas while the migration ran once; remove the test data and users afterwards
-- [ ] 6.4 Update the root `README.md` (services table, ports, the migrate step) and the `ms-listing` README Docker section; run `graphify update .`; verify the documented commands work and graphify finishes without errors
+- [x] 6.1 Add `services/ms-listing/Dockerfile` and both compose files (`ms-listing-migrate` with `--migrate`, `ms-listing` depending on its successful completion, no host port, a commented `6002` block in Development), and include them in the root compose files; verify `docker compose config` for the root and service files
+- [x] 6.2 Add the `brand`, `model`, and `city` routes and the `ms-listing` cluster to the gateway settings (Local `http://localhost:5002`), and the routes to `api-gateway/README.md`; verify in Local through `5080` that a public list, a `?brandId=` list, and an admin create reach `ms-listing` unchanged
+- [x] 6.3 Verify Development and then Production through the gateway (`6080` / `7080`): the migrate container exits 0 before `ms-listing` starts and is a no-op on the second `up`; public reads, an admin create, update, delete, and restore work against `listingDev` / `listing` with `carsalesDev` / `carsales` admin tokens; a Development admin token is rejected in Production; `--scale ms-listing=2` serves requests from both replicas while the migration ran once; remove the test data and users afterwards
+- [x] 6.4 Update the root `README.md` (services table, ports, the migrate step) and the `ms-listing` README Docker section; run `graphify update .`; verify the documented commands work and graphify finishes without errors
 
 ## Workflow follow-up
 

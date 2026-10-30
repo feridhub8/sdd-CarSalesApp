@@ -8,6 +8,7 @@ Car sales platform built as .NET 10 microservices.
 |---|---|
 | api-gateway | `api-gateway/` |
 | ms-auth | `services/ms-auth/` |
+| ms-listing | `services/ms-listing/` |
 
 Clients use only `api-gateway`. It forwards each request to the service that owns it (see [`api-gateway/README.md`](api-gateway/README.md)).
 
@@ -38,11 +39,11 @@ docker compose -f infrastructure/docker-compose.yml run --rm vault-unseal
 
 The first digit is the environment, the last digits are the service number. `api-gateway` is number `80`.
 
-| Environment | Runs with | api-gateway | ms-auth |
-|---|---|---|---|
-| Local | `dotnet run` / IDE | `5080` | `5001` |
-| Development | Docker, `docker-compose.dev.yml` | `6080` | no host port |
-| Production | Docker, `docker-compose.yml` | `7080` | no host port |
+| Environment | Runs with | api-gateway | ms-auth | ms-listing |
+|---|---|---|---|---|
+| Local | `dotnet run` / IDE | `5080` | `5001` | `5002` |
+| Development | Docker, `docker-compose.dev.yml` | `6080` | no host port | no host port |
+| Production | Docker, `docker-compose.yml` | `7080` | no host port | no host port |
 
 In Docker, services publish no host port: clients reach them only through the gateway, and services can be scaled with `--scale`. Local runs reach every service directly as well.
 
@@ -73,3 +74,11 @@ docker compose down
 ```
 
 Development and Production are not run at the same time on one machine. `down` also stops the infrastructure; its data is kept.
+
+A service with a database applies its migrations first: a one-shot `<service>-migrate` container (for example `ms-listing-migrate`) runs and exits, and the service starts only after it succeeds. Locally, run `dotnet run --project src/WebApi -- --migrate` in the service folder (see its README).
+
+**Known issue:** if the gateway starts before a service it forwards to is reachable (for example while `ms-listing` waits for its migration), it stops answering on its port. Restart it once the services are up:
+
+```bash
+docker compose -f docker-compose.dev.yml restart api-gateway   # or: docker compose restart api-gateway
+```

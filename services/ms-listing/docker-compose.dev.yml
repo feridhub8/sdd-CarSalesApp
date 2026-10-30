@@ -1,0 +1,36 @@
+name: carsales
+
+services:
+  # One-shot: applies migrations and exits; ms-listing starts only after it succeeds.
+  ms-listing-migrate:
+    build:
+      context: ../..
+      dockerfile: services/ms-listing/Dockerfile
+    restart: "no"
+    env_file: .env
+    command: ["--migrate"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    networks:
+      - carsales_network
+
+  ms-listing:
+    build:
+      context: ../..
+      dockerfile: services/ms-listing/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    # Uncomment for temporary direct access (Swagger included); do not commit.
+    # ports:
+    #   - "6002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      ms-listing-migrate:
+        condition: service_completed_successfully
+    networks:
+      - carsales_network
+
+networks:
+  carsales_network:
+    external: true
