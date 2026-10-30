@@ -87,7 +87,7 @@ Admins SHALL create entries and update an entry's name; a model's brand can also
 - **THEN** the system responds with 404 Not Found
 
 ### Requirement: Soft delete
-Deleting an entry SHALL mark it deleted and record when, without removing it, and respond with 204 No Content. A brand that has non-deleted models MUST NOT be deleted.
+Deleting an entry SHALL mark it deleted and record when, without removing it, and respond with 204 No Content. A brand that has non-deleted models MUST NOT be deleted. A model or city that non-deleted listings use MUST NOT be deleted.
 
 #### Scenario: Delete a city
 - **WHEN** an admin deletes a non-deleted city
@@ -101,6 +101,10 @@ Deleting an entry SHALL mark it deleted and record when, without removing it, an
 #### Scenario: Delete an already deleted or unknown entry
 - **WHEN** an admin deletes an entry that is already deleted or does not exist
 - **THEN** the system responds with 404 Not Found
+
+#### Scenario: Model or city with active listings
+- **WHEN** an admin deletes a model or a city that a non-deleted listing uses
+- **THEN** the system responds with 409 Conflict and the entry stays
 
 ### Requirement: Restore
 Restoring a deleted entry SHALL make it non-deleted again and respond with 204 No Content. A restore MUST fail with 409 Conflict when the entry is not deleted, when a non-deleted entry with the same name now exists in its scope, or, for a model, when its brand is deleted.
