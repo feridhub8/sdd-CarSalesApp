@@ -1,4 +1,8 @@
 using System.Net.Sockets;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using WebApi.ServiceDiscovery.V1;
+using Yarp.ReverseProxy.ServiceDiscovery;
 
 namespace WebApi.Extensions.V1;
 
@@ -22,5 +26,20 @@ public static class ReverseProxyExtensions
                 options.RefreshPeriod = DnsRefreshPeriod;
                 options.AddressFamily = AddressFamily.InterNetwork;
             });
+
+        WrapDnsResolver(services);
+    }
+
+    // YARP's DNS resolver type is internal, so wrap whatever AddDnsDestinationResolver registered last.
+    private static void WrapDnsResolver(IServiceCollection services)
+    {
+        var dnsResolverType = services.Last(descriptor => descriptor.ServiceType == typeof(IDestinationResolver)).ImplementationType
+            ?? throw new InvalidOperationException("AddDnsDestinationResolver did not register a resolver type.");
+
+        services.RemoveAll<IDestinationResolver>();
+        services.AddSingleton<IDestinationResolver>(provider => new TolerantDnsDestinationResolver(
+            (IDestinationResolver)ActivatorUtilities.CreateInstance(provider, dnsResolverType),
+            provider.GetRequiredService<IOptionsMonitor<DnsDestinationResolverOptions>>(),
+            provider.GetRequiredService<ILogger<TolerantDnsDestinationResolver>>()));
     }
 }
