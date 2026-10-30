@@ -15,6 +15,9 @@ context: |
   Database: PostgreSQL. One server in Docker holds the development and production
   databases, a database per service. Production databases may later move to a separate
   server, with or without their data.
+  Data access: EF Core with Npgsql, snake_case table and column names. Migrations run in a
+  one-shot <service>-migrate container (the service image started with --migrate); the service
+  starts only after it succeeds. Locally: dotnet run -- --migrate.
   Communication: HTTP for synchronous calls, Kafka for events.
   Mapping: Mapster (MIT).
 

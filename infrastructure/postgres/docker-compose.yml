@@ -30,9 +30,13 @@ services:
       - -c
       - >-
         [ -n "$$KC_DB_PASSWORD" ] || { echo "KC_DB_PASSWORD is empty in infrastructure/keycloak/.env"; exit 1; };
+        [ -n "$$LISTING_DB_PASSWORD" ] || { echo "LISTING_DB_PASSWORD is empty in infrastructure/postgres/.env"; exit 1; };
+        [ -n "$$LISTING_DB_PASSWORD_DEV" ] || { echo "LISTING_DB_PASSWORD_DEV is empty in infrastructure/postgres/.env"; exit 1; };
         PGPASSWORD="$$POSTGRES_PASSWORD"
         psql -h postgres -U "$$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1
         -v kc_password="$$KC_DB_PASSWORD"
+        -v listing_password="$$LISTING_DB_PASSWORD"
+        -v listing_dev_password="$$LISTING_DB_PASSWORD_DEV"
         -f /setup/databases.sql
     depends_on:
       postgres:

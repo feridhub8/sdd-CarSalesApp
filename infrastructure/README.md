@@ -49,8 +49,8 @@ Copy each `.env.example` to `.env` in the same folder and fill in the empty valu
 
 | File | Values |
 |---|---|
-| `postgres/.env` | `POSTGRES_PASSWORD`: superuser password. It is applied only when the volume is created; changing it later needs `down -v`. |
-| `keycloak/.env` | `KC_DB_PASSWORD`: password of the `keycloak` database role, kept only here (`postgres-setup` reads it too and syncs it on every start). `KC_BOOTSTRAP_ADMIN_PASSWORD`: Keycloak admin. `MS_AUTH_CLIENT_SECRET`, `MS_AUTH_CLIENT_SECRET_DEV`: the `ms-auth` client secret in each realm, used only on the first import. |
+| `postgres/.env` | `POSTGRES_PASSWORD`: superuser password. It is applied only when the volume is created; changing it later needs `down -v`. `LISTING_DB_PASSWORD`, `LISTING_DB_PASSWORD_DEV`: passwords of the `listing` and `listingDev` database roles (`postgres-setup` syncs them on every start; Vault holds the same values for `ms-listing`). |
+| `keycloak/.env` | `KC_DB_PASSWORD`: password of the `keycloak` database role, kept only here (`postgres-setup` reads it too and syncs it on every start). `KC_BOOTSTRAP_ADMIN_PASSWORD`: Keycloak admin. `MS_AUTH_CLIENT_SECRET`, `MS_AUTH_CLIENT_SECRET_DEV`: the `ms-auth` client secret in each realm, used only on the first import. `MS_LISTING_CLIENT_SECRET`, `MS_LISTING_CLIENT_SECRET_DEV`: the `ms-listing` client secret in each realm (`keycloak-setup` syncs them on every start; Vault holds the same values). |
 | `vault/.env` | `VAULT_KEYS_FILE`: where the Vault keys file is. The default is `~/Desktop/carsales-vault-keys.json`. |
 
 Any long random string works for the secrets, for example `openssl rand -hex 32`.
@@ -92,6 +92,7 @@ Inside that shell:
 vault secrets enable -path=carsales kv-v2
 vault policy write admin /vault/policies/admin.hcl
 vault policy write ms-auth /vault/policies/ms-auth.hcl
+vault policy write ms-listing /vault/policies/ms-listing.hcl
 
 # Your admin login for the UI and CLI
 vault auth enable userpass
@@ -106,9 +107,22 @@ vault write -f -field=secret_id auth/approle/role/ms-auth/secret-id
 # ms-auth secrets: the client secrets from keycloak/.env
 vault kv put -mount=carsales ms-auth "Keycloak:ClientSecret=<MS_AUTH_CLIENT_SECRET>"
 vault kv put -mount=carsales ms-authDev "Keycloak:ClientSecret=<MS_AUTH_CLIENT_SECRET_DEV>"
+
+# ms-listing signs in with AppRole
+vault write auth/approle/role/ms-listing token_policies=ms-listing token_ttl=1h token_max_ttl=4h secret_id_ttl=0
+vault read -field=role_id auth/approle/role/ms-listing/role-id
+vault write -f -field=secret_id auth/approle/role/ms-listing/secret-id
+
+# ms-listing secrets: the full connection string of each environment and the client secrets from keycloak/.env.
+# Connection strings use the Npgsql format Host=...;Port=...;Database=...;Username=...;Password=..., with the
+# database, role, and password that postgres-setup creates from postgres/.env. Local runs on the host and
+# Development in Docker reach the same database by different hosts, so each has its own path.
+vault kv put -mount=carsales ms-listing "ConnectionStrings:Default=<Production connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET>"
+vault kv put -mount=carsales ms-listingDev "ConnectionStrings:Default=<Development connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET_DEV>"
+vault kv put -mount=carsales ms-listingLocal "ConnectionStrings:Default=<Local connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET_DEV>"
 ```
 
-Put the role id and secret id into `services/ms-auth/.env`:
+Put each service's role id and secret id into its `.env` (`services/ms-auth/.env`, `services/ms-listing/.env`):
 
 ```
 VAULT_ROLE_ID=<role_id>
@@ -123,6 +137,30 @@ exit
 ```
 
 From now on you sign in with your username. The `root_token` in the keys file no longer works; the unseal keys still do.
+
+### 5. Admin role
+
+`keycloak-setup` creates the `admin` realm role in both realms. Give it to a user in the console (`http://localhost:8080`, bootstrap admin): realm → **Users** → the user → **Role mapping** → **Assign role** → `admin`. Or with kcadm:
+
+```bash
+docker compose -f infrastructure/docker-compose.yml exec keycloak bash -c '
+  /opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 \
+    --realm master --user "$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"
+  /opt/keycloak/bin/kcadm.sh add-roles --config /tmp/kcadm.config -r carsalesDev --uusername <username> --rolename admin'
+```
+
+The role is in the user's next login token; tokens issued before keep their old roles until they expire.
+
+## Adding a service to an existing setup
+
+After the root token is revoked, a new service is added with your admin login. Example for `ms-listing` (already included in the first-time steps above):
+
+```bash
+docker compose -f infrastructure/docker-compose.yml exec vault vault login -method=userpass username=<your-name>
+docker compose -f infrastructure/docker-compose.yml exec vault sh
+```
+
+Inside the shell, run the service's lines from section 4 (`policy write`, `approle/role`, `role-id`, `secret-id`, `kv put`), write the ids into the service's `.env`, then end the session with `vault token revoke -self`.
 
 ## Emergency: new root token
 
