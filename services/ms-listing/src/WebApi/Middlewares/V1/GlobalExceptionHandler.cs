@@ -42,6 +42,15 @@ public sealed class GlobalExceptionHandler
                 Detail = exception.Message
             });
         }
+        catch (ForbiddenException exception)
+        {
+            await WriteProblemAsync(context, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = "Forbidden",
+                Detail = exception.Message
+            });
+        }
         catch (ConflictException exception)
         {
             await WriteProblemAsync(context, new ProblemDetails
