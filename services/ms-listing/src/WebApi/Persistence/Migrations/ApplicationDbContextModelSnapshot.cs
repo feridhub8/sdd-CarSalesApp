@@ -105,6 +105,163 @@ namespace WebApi.Persistence.Migrations
                     b.ToTable("cities", (string)null);
                 });
 
+            modelBuilder.Entity("WebApi.Data.Listing.Entities.V1.Listing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BodyType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("body_type");
+
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("city_id");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("color");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Drivetrain")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("drivetrain");
+
+                    b.Property<decimal?>("EngineVolume")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)")
+                        .HasColumnName("engine_volume");
+
+                    b.Property<string>("FuelType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("fuel_type");
+
+                    b.Property<int>("Horsepower")
+                        .HasColumnType("integer")
+                        .HasColumnName("horsepower");
+
+                    b.Property<bool>("IsBarter")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_barter");
+
+                    b.Property<bool>("IsCredit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_credit");
+
+                    b.Property<bool>("IsDamaged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_damaged");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsPainted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_painted");
+
+                    b.Property<string>("Market")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("market");
+
+                    b.Property<int>("Mileage")
+                        .HasColumnType("integer")
+                        .HasColumnName("mileage");
+
+                    b.Property<string>("MileageUnit")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("mileage_unit");
+
+                    b.Property<Guid>("ModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("model_id");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("price");
+
+                    b.Property<int>("Seats")
+                        .HasColumnType("integer")
+                        .HasColumnName("seats");
+
+                    b.Property<string>("Transmission")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("transmission");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Vin")
+                        .HasMaxLength(17)
+                        .HasColumnType("character varying(17)")
+                        .HasColumnName("vin");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_listings");
+
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("ix_listings_city_id");
+
+                    b.HasIndex("ModelId")
+                        .HasDatabaseName("ix_listings_model_id");
+
+                    b.HasIndex("CreatedAt", "Id")
+                        .IsDescending()
+                        .HasDatabaseName("ix_listings_created_at_id")
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("OwnerId", "CreatedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_listings_owner_id_created_at")
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("listings", (string)null);
+                });
+
             modelBuilder.Entity("WebApi.Data.Model.Entities.V1.Model", b =>
                 {
                     b.Property<Guid>("Id")
@@ -148,6 +305,27 @@ namespace WebApi.Persistence.Migrations
                         .HasFilter("is_deleted = false");
 
                     b.ToTable("models", (string)null);
+                });
+
+            modelBuilder.Entity("WebApi.Data.Listing.Entities.V1.Listing", b =>
+                {
+                    b.HasOne("WebApi.Data.City.Entities.V1.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_listings_cities_city_id");
+
+                    b.HasOne("WebApi.Data.Model.Entities.V1.Model", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_listings_models_model_id");
+
+                    b.Navigation("City");
+
+                    b.Navigation("Model");
                 });
 
             modelBuilder.Entity("WebApi.Data.Model.Entities.V1.Model", b =>

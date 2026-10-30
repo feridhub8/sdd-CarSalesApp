@@ -2,6 +2,8 @@ using WebApi.Data.Brand.Repositories.V1;
 using WebApi.Data.Brand.Repositories.V1.Base;
 using WebApi.Data.City.Repositories.V1;
 using WebApi.Data.City.Repositories.V1.Base;
+using WebApi.Data.Listing.Repositories.V1;
+using WebApi.Data.Listing.Repositories.V1.Base;
 using WebApi.Data.Model.Repositories.V1;
 using WebApi.Data.Model.Repositories.V1.Base;
 using WebApi.Data.Shared.Repositories.V1;
@@ -17,6 +19,7 @@ public static class RepositoryExtensions
         services.AddScoped<IBrandRepository, BrandEfCoreRepository>();
         services.AddScoped<IModelRepository, ModelEfCoreRepository>();
         services.AddScoped<ICityRepository, CityEfCoreRepository>();
+        services.AddScoped<IListingRepository, ListingEfCoreRepository>();
 
         // Stateless and called from token validation on every authorized request.
         services.AddSingleton<ITokenRepository, TokenKeycloakRepository>();

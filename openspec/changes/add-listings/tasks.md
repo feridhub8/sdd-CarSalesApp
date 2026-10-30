@@ -9,12 +9,12 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. Listing data
 
-- [ ] 2.1 Add the eight enums in `Data/Listing/Enums/V1`, the `Listing` entity (with `Model` and `City` navigations), `ListingConfigurations` (string enums, column types, FKs with restrict, the two partial indexes), the `Listings` DbSet, and the `AddListings` migration; verify `--migrate` creates `listings` with the indexes from design §3
+- [x] 2.1 Add the eight enums in `Data/Listing/Enums/V1`, the `Listing` entity (with `Model` and `City` navigations), `ListingConfigurations` (string enums, column types, FKs with restrict, the two partial indexes), the `Listings` DbSet, and the `AddListings` migration; verify `--migrate` creates `listings` with the indexes from design §3
 
 ## 3. Listing slice
 
-- [ ] 3.1 Add DTOs, commands, queries (paged list, by id, `Mine`, `WithDeleted` list and by id), validators (field rules, engine volume rule, VIN, paging), mappings (names of brand, model, and city), `IListingRepository`/`ListingEfCoreRepository`, `IListingService`/`ListingService` (ownership and admin checks, model and city checks, restore conflicts), handlers, and `ListingController`; register them in `RepositoryExtensions` and `ServiceExtensions`; verify the build and that Swagger shows the nine actions with string enums
-- [ ] 3.2 Verify every scenario of `specs/listings` in Local: public reads and 404, paging (default, second page, totals, out of range), create with the owner taken from the token, no token, field rules (each range, enums, VIN, engine volume for electric and petrol, missing or deleted model or city), owner update and delete, another user and admin update (403), another user delete (403), admin delete, `Mine`, `WithDeleted`, restore (204, owner 403, conflicts); remove the test data and users afterwards
+- [x] 3.1 Add DTOs, commands, queries (paged list, by id, `Mine`, `WithDeleted` list and by id), validators (field rules, engine volume rule, VIN, paging), mappings (names of brand, model, and city), `IListingRepository`/`ListingEfCoreRepository`, `IListingService`/`ListingService` (ownership and admin checks, model and city checks, restore conflicts), handlers, and `ListingController`; register them in `RepositoryExtensions` and `ServiceExtensions`; verify the build and that Swagger shows the nine actions with string enums
+- [x] 3.2 Verify every scenario of `specs/listings` in Local: public reads and 404, paging (default, second page, totals, out of range), create with the owner taken from the token, no token, field rules (each range, enums, VIN, engine volume for electric and petrol, missing or deleted model or city), owner update and delete, another user and admin update (403), another user delete (403), admin delete, `Mine`, `WithDeleted`, restore (204, owner 403, conflicts); remove the test data and users afterwards
 
 ## 4. Catalog protection
 
