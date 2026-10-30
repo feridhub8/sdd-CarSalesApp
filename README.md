@@ -76,9 +76,3 @@ docker compose down
 Development and Production are not run at the same time on one machine. `down` also stops the infrastructure; its data is kept.
 
 A service with a database applies its migrations first: a one-shot `<service>-migrate` container (for example `ms-listing-migrate`) runs and exits, and the service starts only after it succeeds. Locally, run `dotnet run --project src/WebApi -- --migrate` in the service folder (see its README).
-
-**Known issue:** if the gateway starts before a service it forwards to is reachable (for example while `ms-listing` waits for its migration), it stops answering on its port. Restart it once the services are up:
-
-```bash
-docker compose -f docker-compose.dev.yml restart api-gateway   # or: docker compose restart api-gateway
-```

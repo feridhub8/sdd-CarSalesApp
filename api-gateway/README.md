@@ -15,6 +15,8 @@ Anything else gets `404` from the gateway. Paths are not rewritten, so a service
 
 `GET /health` reports the gateway itself, whatever the state of the services. A service that cannot be reached gives `502`, `503`, or `504` within a few seconds (connect timeout 3 seconds).
 
+The gateway does not depend on any service being up when it starts. A service whose name does not resolve yet (for example while it waits for its migration) gets `503`, and the gateway logs a warning naming the host. It retries every 10 seconds and starts forwarding as soon as the service appears, without a restart.
+
 ## Adding a service
 
 Add a route and a cluster to `src/WebApi/appsettings.json`, and the Local address to `src/WebApi/appsettings.Local.json`:

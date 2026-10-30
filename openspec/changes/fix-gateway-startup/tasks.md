@@ -9,8 +9,8 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. Docker and docs
 
-- [ ] 2.1 Verify in Development and Production from a stopped stack: `up -d --build` brings the gateway up before `ms-listing` finishes migrating, catalog requests succeed within 30 seconds with no manual restart, auth requests work throughout, and with `--scale ms-listing=2` both replicas still receive requests; remove test data and containers afterwards
-- [ ] 2.2 Remove the "Known issue" block from the root `README.md`, describe the startup behavior in `api-gateway/README.md` (a missing service gives 503 and is picked up within about 10 seconds), and run `graphify update .`; verify the docs match the observed behavior and graphify finishes without errors
+- [x] 2.1 Verify in Development and Production from a stopped stack: `up -d --build` brings the gateway up before `ms-listing` finishes migrating, catalog requests succeed within 30 seconds with no manual restart, auth requests work throughout, and with `--scale ms-listing=2` both replicas still receive requests; remove test data and containers afterwards
+- [x] 2.2 Remove the "Known issue" block from the root `README.md`, describe the startup behavior in `api-gateway/README.md` (a missing service gives 503 and is picked up within about 10 seconds), and run `graphify update .`; verify the docs match the observed behavior and graphify finishes without errors
 
 ## Workflow follow-up
 
