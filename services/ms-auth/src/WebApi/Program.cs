@@ -3,18 +3,20 @@ using WebApi.Middlewares.V1;
 
 var builder = WebApplication.CreateBuilder(args);
 
-await builder.InitSecretsAsync();
+await builder.InitVaultAsync();
 
 builder.Services.InitLibraries();
 builder.Services.InitApiVersioning();
 builder.Services.InitKeycloak(builder.Configuration);
+builder.Services.InitRepositories();
+builder.Services.InitServices();
 builder.Services.InitAuthentication(builder.Configuration);
 builder.Services.InitSwagger();
 builder.Services.InitHealthChecks();
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<GlobalExceptionHandler>();
 app.UseSwaggerInLocalAndDevelopment();
 
 app.UseAuthentication();

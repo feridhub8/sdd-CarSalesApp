@@ -7,12 +7,12 @@ using WebApi.Data.Shared.Models.V1;
 
 namespace WebApi.Extensions.V1;
 
-public static class SecretExtensions
+public static class VaultExtensions
 {
     private const string RoleIdVariable = "VAULT_ROLE_ID";
     private const string SecretIdVariable = "VAULT_SECRET_ID";
 
-    public static async Task InitSecretsAsync(this WebApplicationBuilder builder)
+    public static async Task InitVaultAsync(this WebApplicationBuilder builder)
     {
         Env.TraversePath().Load();
 

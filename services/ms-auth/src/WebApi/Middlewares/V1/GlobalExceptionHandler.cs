@@ -4,12 +4,12 @@ using WebApi.Exceptions.V1;
 
 namespace WebApi.Middlewares.V1;
 
-public sealed class ExceptionHandlingMiddleware
+public sealed class GlobalExceptionHandler
 {
     private readonly RequestDelegate next;
-    private readonly ILogger<ExceptionHandlingMiddleware> logger;
+    private readonly ILogger<GlobalExceptionHandler> logger;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public GlobalExceptionHandler(RequestDelegate next, ILogger<GlobalExceptionHandler> logger)
     {
         this.next = next;
         this.logger = logger;
