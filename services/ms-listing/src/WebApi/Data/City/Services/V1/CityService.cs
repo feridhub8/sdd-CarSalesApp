@@ -44,6 +44,10 @@ public sealed class CityService : ICityService
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var city = await this.GetByIdAsync(id, withDeleted: false, ct);
+        if (await this.cityRepository.HasActiveListingsAsync(id, ct))
+        {
+            throw new ConflictException($"City {id} is used by listings; delete or move them first.");
+        }
 
         city.IsDeleted = true;
         await this.cityRepository.SaveChangesAsync(ct);

@@ -31,6 +31,12 @@ public sealed class CityEfCoreRepository : ICityRepository
         return this.context.Cities.AnyAsync(city => city.Name == name && city.Id != exceptId, ct);
     }
 
+    public Task<bool> HasActiveListingsAsync(Guid cityId, CancellationToken ct = default)
+    {
+        // The query filter skips deleted listings, so only listings people can see block a delete.
+        return this.context.Listings.AnyAsync(listing => listing.CityId == cityId, ct);
+    }
+
     public async Task AddAsync(Entities.V1.City city, CancellationToken ct = default)
     {
         this.context.Cities.Add(city);

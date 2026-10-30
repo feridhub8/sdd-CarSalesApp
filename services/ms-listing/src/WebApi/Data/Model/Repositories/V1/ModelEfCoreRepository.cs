@@ -37,6 +37,12 @@ public sealed class ModelEfCoreRepository : IModelRepository
         return this.context.Models.AnyAsync(model => model.BrandId == brandId && model.Name == name && model.Id != exceptId, ct);
     }
 
+    public Task<bool> HasActiveListingsAsync(Guid modelId, CancellationToken ct = default)
+    {
+        // The query filter skips deleted listings, so only listings people can see block a delete.
+        return this.context.Listings.AnyAsync(listing => listing.ModelId == modelId, ct);
+    }
+
     public async Task AddAsync(Entities.V1.Model model, CancellationToken ct = default)
     {
         this.context.Models.Add(model);

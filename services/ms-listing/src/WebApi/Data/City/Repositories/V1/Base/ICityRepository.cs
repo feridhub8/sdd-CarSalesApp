@@ -8,6 +8,8 @@ public interface ICityRepository
 
     Task<bool> NameExistsAsync(string name, Guid? exceptId, CancellationToken ct = default);
 
+    Task<bool> HasActiveListingsAsync(Guid cityId, CancellationToken ct = default);
+
     Task AddAsync(Entities.V1.City city, CancellationToken ct = default);
 
     Task SaveChangesAsync(CancellationToken ct = default);

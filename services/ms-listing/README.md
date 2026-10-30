@@ -1,6 +1,6 @@
 # ms-listing
 
-Listing service. For now it holds the catalog that listings will refer to: car brands, their models, and cities. Anyone can read the catalog; only admins can change it.
+Listing service: car listings and the catalog they refer to (brands, models, cities). Anyone can browse; signed-in users publish and manage their own listings; admins manage the catalog and can remove and restore any listing.
 
 ## Requirements
 
@@ -68,7 +68,7 @@ dotnet run --project src/WebApi
 
 The app starts in the `Local` environment on `http://localhost:5002`. Swagger UI is at `http://localhost:5002/swagger`. Stop it with `Ctrl+C`.
 
-## Endpoints
+## Catalog endpoints
 
 `Brand`, `Model`, and `City` each have the same actions under `api/v1/<Entity>`. Errors are returned as ProblemDetails.
 
@@ -80,7 +80,7 @@ The app starts in the `Local` environment on `http://localhost:5002`. Swagger UI
 | By id with deleted | `GET WithDeleted/{id}` | admin | `200` | `401`, `403`, `404` |
 | Create | `POST Create` | admin | `201` entry | `400`, `401`, `403`, `409` |
 | Update | `PUT Update/{id}` | admin | `200` entry | `400`, `401`, `403`, `404`, `409` |
-| Delete | `DELETE Delete/{id}` | admin | `204` (soft delete) | `401`, `403`, `404`, `409` (brand with models) |
+| Delete | `DELETE Delete/{id}` | admin | `204` (soft delete) | `401`, `403`, `404`, `409` (brand with models; model or city with listings) |
 | Restore | `PATCH Restore/{id}` | admin | `204` | `401`, `403`, `404`, `409` |
 
 Bodies and responses:
@@ -97,13 +97,59 @@ Rules:
 - `Model` lists take an optional `?brandId=` filter.
 - A model needs an existing, non-deleted brand; otherwise `400` on `brandId`.
 - A brand with non-deleted models cannot be deleted (`409`). Delete its models first.
+- A model or city used by non-deleted listings cannot be deleted (`409`). Delete or move those listings first.
 - Restore gives `409` when the entry is not deleted, when its name is now taken, or, for a model, when its brand is deleted.
 
-### Admin token
+## Listing endpoints
+
+All under `api/v1/Listing`. A listing belongs to the user who created it (the token's subject).
+
+| Action | Route | Who | Success | Errors |
+|---|---|---|---|---|
+| List | `GET ?page=&pageSize=` | anyone | `200` page of non-deleted listings, newest first | `400` paging |
+| By id | `GET {id}` | anyone | `200` | `404` missing or deleted |
+| Own list | `GET Mine?page=&pageSize=` | signed in | `200` page of the caller's listings | `400`, `401` |
+| List with deleted | `GET WithDeleted?page=&pageSize=` | admin | `200` page with `isDeleted`, `deletedAt` | `400`, `401`, `403` |
+| By id with deleted | `GET WithDeleted/{id}` | admin | `200` | `401`, `403`, `404` |
+| Create | `POST Create` | signed in | `201` listing | `400`, `401` |
+| Update | `PUT Update/{id}` | owner | `200` listing | `400`, `401`, `403`, `404` |
+| Delete | `DELETE Delete/{id}` | owner or admin | `204` (soft delete) | `401`, `403`, `404` |
+| Restore | `PATCH Restore/{id}` | admin | `204` | `401`, `403`, `404`, `409` |
+
+- **Ownership:** the owner comes from the access token; an `ownerId` in the body is ignored. Only the owner can update a listing (an admin gets `403`); the owner or an admin can delete it; only an admin can restore it. A missing or deleted listing gives `404` before any ownership check.
+- **Paging:** `page` 1–500 (default 1), `pageSize` 1–100 (default 20). The response is `{ items, page, pageSize, totalCount }`, newest first.
+- **Restore** gives `409` when the listing is not deleted or when its model or city is deleted.
+
+Body (create and update):
+
+| Field | Rule |
+|---|---|
+| `modelId`, `cityId` | an existing, non-deleted model and city (otherwise `400` on that field) |
+| `year` | 1900 to next year |
+| `mileage`, `mileageUnit` | 0–2,000,000; `Km` or `Mi` |
+| `engineVolume` | litres with one decimal, 0.1–10.0; must be empty when `fuelType` is `Electric` |
+| `horsepower` | 1–2,000 |
+| `seats` | 1–60 |
+| `vin` | optional; 17 letters and digits without `I`, `O`, `Q`; stored upper-case |
+| `price`, `currency` | 1–100,000,000; `AZN`, `USD`, or `EUR` |
+| `description` | optional, at most 3,000 characters; trimmed |
+| `isCredit`, `isBarter`, `isPainted`, `isDamaged` | `true` / `false` |
+| `bodyType` | `Sedan`, `Hatchback`, `Liftback`, `Wagon`, `Suv`, `Crossover`, `Coupe`, `Convertible`, `Minivan`, `Pickup`, `Van` |
+| `fuelType` | `Petrol`, `Diesel`, `Gas`, `Hybrid`, `PluginHybrid`, `Electric` |
+| `transmission` | `Manual`, `Automatic`, `Robotic`, `Cvt` |
+| `drivetrain` | `Front`, `Rear`, `AllWheel` |
+| `color` | `White`, `Black`, `Silver`, `Gray`, `Red`, `Blue`, `DarkBlue`, `Green`, `Yellow`, `Orange`, `Brown`, `Beige`, `Gold`, `Purple`, `Other` |
+| `market` | `OfficialDealer`, `Europe`, `Usa`, `Korea`, `Japan`, `Gcc`, `Russia`, `China`, `Other` |
+
+Enums are sent and returned as their names; numbers and unknown names give `400`. Each broken rule gives `400` naming its field.
+
+The response has every field plus `id`, `ownerId`, `brandId`, `brandName`, `modelName`, `cityName`, `createdAt`, and `updatedAt`.
+
+## Tokens
 
 Admin actions need an access token from `ms-auth` for a user with the `admin` realm role. The role is given in the Keycloak console; see "Admin role" in the infrastructure README. Sign in again after the role is given, because older tokens do not carry it. A signed-out token is rejected at once (`401`).
 
-### Example against Local
+## Example against Local
 
 ```bash
 AUTH=http://localhost:5001/api/v1/Auth
@@ -120,6 +166,16 @@ curl -s -X POST $API/Model/Create -H "Authorization: Bearer $TOKEN" -H "Content-
 curl -s $API/Brand
 curl -s "$API/Model?brandId=<brand id>"
 curl -s $API/City
+
+# Listings: any signed-in user (USER_TOKEN obtained like TOKEN above)
+curl -s -X POST $API/Listing/Create -H "Authorization: Bearer $USER_TOKEN" -H "Content-Type: application/json" -d '{
+  "modelId":"<model id>","cityId":"<city id>","year":2018,"mileage":85000,"mileageUnit":"Km","engineVolume":2.0,
+  "horsepower":184,"seats":5,"bodyType":"Sedan","fuelType":"Petrol","transmission":"Automatic","drivetrain":"Rear",
+  "color":"Black","market":"OfficialDealer","price":32500,"currency":"USD","description":"Well kept.",
+  "isCredit":true,"isBarter":false,"isPainted":false,"isDamaged":false}'
+
+curl -s "$API/Listing?page=1&pageSize=20"
+curl -s "$API/Listing/Mine" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 ## Docker

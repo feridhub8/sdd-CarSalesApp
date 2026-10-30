@@ -18,8 +18,8 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 4. Catalog protection
 
-- [ ] 4.1 Add `HasActiveListingsAsync` to the model and city repositories and the 409 checks to `ModelService.DeleteAsync` and `CityService.DeleteAsync`; verify a model or city used by a listing cannot be deleted, can be after the listing is deleted, and the existing catalog scenarios still pass
-- [ ] 4.2 Update `services/ms-listing/README.md` (listing endpoints with who can call them, fields and rules, enums, paging, ownership, the catalog delete rule, curl examples for create, list, and `Mine`); verify the documented commands work as written
+- [x] 4.1 Add `HasActiveListingsAsync` to the model and city repositories and the 409 checks to `ModelService.DeleteAsync` and `CityService.DeleteAsync`; verify a model or city used by a listing cannot be deleted, can be after the listing is deleted, and the existing catalog scenarios still pass
+- [x] 4.2 Update `services/ms-listing/README.md` (listing endpoints with who can call them, fields and rules, enums, paging, ownership, the catalog delete rule, curl examples for create, list, and `Mine`); verify the documented commands work as written
 
 ## 5. Gateway and Docker
 

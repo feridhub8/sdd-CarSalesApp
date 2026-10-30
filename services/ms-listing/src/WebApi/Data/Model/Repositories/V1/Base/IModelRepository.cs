@@ -8,6 +8,8 @@ public interface IModelRepository
 
     Task<bool> NameExistsAsync(Guid brandId, string name, Guid? exceptId, CancellationToken ct = default);
 
+    Task<bool> HasActiveListingsAsync(Guid modelId, CancellationToken ct = default);
+
     Task AddAsync(Entities.V1.Model model, CancellationToken ct = default);
 
     Task SaveChangesAsync(CancellationToken ct = default);

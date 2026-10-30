@@ -55,6 +55,10 @@ public sealed class ModelService : IModelService
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var model = await this.GetByIdAsync(id, withDeleted: false, ct);
+        if (await this.modelRepository.HasActiveListingsAsync(id, ct))
+        {
+            throw new ConflictException($"Model {id} is used by listings; delete or move them first.");
+        }
 
         model.IsDeleted = true;
         await this.modelRepository.SaveChangesAsync(ct);
