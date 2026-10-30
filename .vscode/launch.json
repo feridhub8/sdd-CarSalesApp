@@ -20,6 +20,16 @@
       "cwd": "${workspaceFolder}/services/ms-auth/src/WebApi",
       "launchSettingsFilePath": "${workspaceFolder}/services/ms-auth/src/WebApi/Properties/launchSettings.json",
       "launchSettingsProfile": "http"
+    },
+    {
+      "name": "ms-listing (Local)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build ms-listing",
+      "program": "${workspaceFolder}/services/ms-listing/src/WebApi/bin/Debug/net10.0/WebApi.dll",
+      "cwd": "${workspaceFolder}/services/ms-listing/src/WebApi",
+      "launchSettingsFilePath": "${workspaceFolder}/services/ms-listing/src/WebApi/Properties/launchSettings.json",
+      "launchSettingsProfile": "http"
     }
   ],
   "compounds": [
@@ -27,7 +37,8 @@
       "name": "All services (Local)",
       "configurations": [
         "api-gateway (Local)",
-        "ms-auth (Local)"
+        "ms-auth (Local)",
+        "ms-listing (Local)"
       ],
       "stopAll": true
     }

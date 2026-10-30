@@ -6,4 +6,7 @@
   <Folder Name="/services/ms-auth/">
     <Project Path="services/ms-auth/src/WebApi/WebApi.csproj" />
   </Folder>
+  <Folder Name="/services/ms-listing/">
+    <Project Path="services/ms-listing/src/WebApi/WebApi.csproj" />
+  </Folder>
 </Solution>
