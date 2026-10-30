@@ -10,6 +10,7 @@ The single entry point for CarSales clients. A YARP reverse proxy that forwards 
 | `/api/v{version}/Brand/**` | `ms-listing` |
 | `/api/v{version}/Model/**` | `ms-listing` |
 | `/api/v{version}/City/**` | `ms-listing` |
+| `/api/v{version}/Listing/**` | `ms-listing` |
 
 Anything else gets `404` from the gateway. Paths are not rewritten, so a service is called on the same path the client used (the refresh token cookie's `Path=/api/v1/Auth` keeps working). Controller names must therefore be unique across services.
 

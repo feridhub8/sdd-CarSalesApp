@@ -23,7 +23,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 5. Gateway and Docker
 
-- [ ] 5.1 Add the `listing` route to the gateway settings and README; verify in Development and then Production through the gateway: paged list with query string, create with a bearer token, owner update, `Mine`, admin restore; remove test data and containers afterwards; run `graphify update .`
+- [x] 5.1 Add the `listing` route to the gateway settings and README; verify in Development and then Production through the gateway: paged list with query string, create with a bearer token, owner update, `Mine`, admin restore; remove test data and containers afterwards; run `graphify update .`
 
 ## Workflow follow-up
 
