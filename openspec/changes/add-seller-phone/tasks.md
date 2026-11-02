@@ -20,7 +20,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 4. Whole system in Docker
 
-- [ ] 4.1 Run all website suites, the full walk, and the auth suite in Development (`6080`) and then Production (`7080`), including `ms-auth` really stopped; remove test data and users, leaving the user's own data, and bring Development back up; run `graphify update .`; verify `git status` shows no secrets
+- [x] 4.1 Run all website suites, the full walk, and the auth suite in Development (`6080`) and then Production (`7080`), including `ms-auth` really stopped; remove test data and users, leaving the user's own data, and bring Development back up; run `graphify update .`; verify `git status` shows no secrets
 
 ## Workflow follow-up
 
