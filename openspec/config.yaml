@@ -29,6 +29,8 @@ context: |
       People sign in with userpass. The root token is revoked after setup.
     - Keycloak: only when authentication is requested. Until then endpoints have no authorization.
       One instance with its own database; environments are separated by realms.
+    - MinIO: file storage for listing images, one bucket per environment. Uses the pgsty/minio
+      fork because official MinIO images can no longer be pulled.
     - Redis, Elasticsearch: when a change needs them.
 
   Write all OpenSpec artifacts in English.

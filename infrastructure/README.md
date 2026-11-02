@@ -7,9 +7,13 @@ Shared tools for every CarSales environment. Each tool has its own folder with a
 | PostgreSQL 17 | `carsales-postgres-1` | `5432` | One server for development and production databases. Development names end with `Dev`. |
 | Keycloak 26.4 | `carsales-keycloak-1` | `8080` | One instance. Realms: `carsales` (production), `carsalesDev` (development). |
 | Vault 2.2.1 | `carsales-vault-1` | `8200` | Secrets. Sealed after every start. |
+| MinIO (`pgsty/minio`) | `carsales-minio-1` | `127.0.0.1:9000`, `127.0.0.1:9001` | File storage. Buckets: `listing-images` (production), `listing-images-dev` (development). Reachable only from this machine; clients read files through `api-gateway`. |
 
-Two one-shot services run on every start and exit. Both are safe to run again and again:
+MinIO uses the `pgsty/minio` fork because official MinIO images can no longer be pulled. Bucket names cannot contain capitals, so the development bucket ends with `-dev` instead of `Dev`. The console at `http://localhost:9001` signs in with `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`.
 
+Three one-shot services run on every start and exit. All are safe to run again and again:
+
+- `minio-setup` creates any missing buckets and syncs their policies and keys (`minio/setup/`). Anyone can read a file by its exact path; nobody can list a bucket without a key. Each bucket has one key, which can read, write, and delete only in that bucket. These settings are owned by the script: a change made to them in the console is undone on the next start.
 - `postgres-setup` creates any missing roles and databases (`postgres/setup/databases.sql`).
 - `keycloak-setup` applies the realm settings the project owns to `carsales` and `carsalesDev` (`keycloak/setup/realms.sh`): username separate from email, login with username or email, unique emails, the password policy (8+ characters with an uppercase letter, a lowercase letter, a digit, and a symbol), and refresh token rotation (each refresh token works once; reusing one ends that login).
   - Realm import only creates missing realms, so this is how existing realms get new settings.
@@ -33,7 +37,7 @@ Stop everything (data is kept):
 docker compose -f infrastructure/docker-compose.yml down
 ```
 
-`down -v` also deletes the volumes: every database, every Keycloak user, and all Vault data. After that, Vault must be initialized again and the old keys file no longer works.
+`down -v` also deletes the volumes: every database, every Keycloak user, every stored file, and all Vault data. After that, Vault must be initialized again and the old keys file no longer works.
 
 ## First-time setup on a machine
 
@@ -52,8 +56,9 @@ Copy each `.env.example` to `.env` in the same folder and fill in the empty valu
 | `postgres/.env` | `POSTGRES_PASSWORD`: superuser password. It is applied only when the volume is created; changing it later needs `down -v`. `LISTING_DB_PASSWORD`, `LISTING_DB_PASSWORD_DEV`: passwords of the `listing` and `listingDev` database roles (`postgres-setup` syncs them on every start; Vault holds the same values for `ms-listing`). |
 | `keycloak/.env` | `KC_DB_PASSWORD`: password of the `keycloak` database role, kept only here (`postgres-setup` reads it too and syncs it on every start). `KC_BOOTSTRAP_ADMIN_PASSWORD`: Keycloak admin. `MS_AUTH_CLIENT_SECRET`, `MS_AUTH_CLIENT_SECRET_DEV`: the `ms-auth` client secret in each realm, used only on the first import. `MS_LISTING_CLIENT_SECRET`, `MS_LISTING_CLIENT_SECRET_DEV`: the `ms-listing` client secret in each realm (`keycloak-setup` syncs them on every start; Vault holds the same values). |
 | `vault/.env` | `VAULT_KEYS_FILE`: where the Vault keys file is. The default is `~/Desktop/carsales-vault-keys.json`. |
+| `minio/.env` | `MINIO_ROOT_PASSWORD`: MinIO administrator. `LISTING_STORAGE_SECRET_KEY`, `LISTING_STORAGE_SECRET_KEY_DEV`: the secret keys of `ms-listing` and `ms-listing-dev` (`minio-setup` syncs them on every start; Vault holds the same values). |
 
-Any long random string works for the secrets, for example `openssl rand -hex 32`.
+Any long random string works for the secrets, for example `openssl rand -hex 32`. MinIO allows at most 40 characters, so use `openssl rand -hex 16` in `minio/.env`.
 
 ### 2. Start
 
@@ -120,6 +125,11 @@ vault write -f -field=secret_id auth/approle/role/ms-listing/secret-id
 vault kv put -mount=carsales ms-listing "ConnectionStrings:Default=<Production connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET>"
 vault kv put -mount=carsales ms-listingDev "ConnectionStrings:Default=<Development connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET_DEV>"
 vault kv put -mount=carsales ms-listingLocal "ConnectionStrings:Default=<Local connection string>" "Keycloak:ClientSecret=<MS_LISTING_CLIENT_SECRET_DEV>"
+
+# ms-listing file storage: the keys from minio/.env. patch adds them and keeps the values above.
+vault kv patch -mount=carsales ms-listing "Storage:AccessKey=ms-listing" "Storage:SecretKey=<LISTING_STORAGE_SECRET_KEY>"
+vault kv patch -mount=carsales ms-listingDev "Storage:AccessKey=ms-listing-dev" "Storage:SecretKey=<LISTING_STORAGE_SECRET_KEY_DEV>"
+vault kv patch -mount=carsales ms-listingLocal "Storage:AccessKey=ms-listing-dev" "Storage:SecretKey=<LISTING_STORAGE_SECRET_KEY_DEV>"
 ```
 
 Put each service's role id and secret id into its `.env` (`services/ms-auth/.env`, `services/ms-listing/.env`):
@@ -161,6 +171,16 @@ docker compose -f infrastructure/docker-compose.yml exec vault sh
 ```
 
 Inside the shell, run the service's lines from section 4 (`policy write`, `approle/role`, `role-id`, `secret-id`, `kv put`), write the ids into the service's `.env`, then end the session with `vault token revoke -self`.
+
+## Adding MinIO to an existing setup
+
+On a machine set up before MinIO existed, copy `minio/.env.example` to `minio/.env`, fill in the values (section 1), and start the infrastructure:
+
+```bash
+docker compose -f infrastructure/docker-compose.yml up -d
+```
+
+Then sign in to Vault as above and run the three `kv patch` lines from section 4.
 
 ## Emergency: new root token
 

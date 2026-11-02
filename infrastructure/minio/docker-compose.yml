@@ -1,0 +1,41 @@
+name: carsales
+
+services:
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    env_file: .env
+    # Reachable only from this machine; clients read files through api-gateway.
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - carsales_network
+
+  minio-setup:
+    image: pgsty/mc:RELEASE.2026-10-26T00-00-00Z
+    restart: "no"
+    env_file: .env
+    entrypoint: ["sh", "/setup/buckets.sh"]
+    volumes:
+      - ./setup:/setup:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - carsales_network
+
+volumes:
+  minio_data:
+
+networks:
+  carsales_network:
+    external: true

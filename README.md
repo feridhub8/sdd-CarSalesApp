@@ -21,6 +21,7 @@ Shared by every environment. Setup, daily use, and backups are in [`infrastructu
 | PostgreSQL | `5432` |
 | Keycloak | `8080` |
 | Vault | `8200` |
+| MinIO | `9000`, console `9001` (this machine only) |
 
 Vault is sealed after every start. Services cannot read their secrets until it is unsealed:
 
