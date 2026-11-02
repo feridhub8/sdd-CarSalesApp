@@ -31,7 +31,7 @@ The system SHALL let anyone, without signing in, list non-deleted listings and r
 - **THEN** `coverImageUrl` is null and, when reading it by id, `images` is empty
 
 ### Requirement: Paged lists
-Listing lists SHALL be paged with `page` (1-based, default 1, at most 500) and `pageSize` (default 20, 1 to 100), sorted newest first, and SHALL return `items`, `page`, `pageSize`, and `totalCount`. Values outside these ranges MUST give 400 Bad Request naming the parameter.
+Listing lists SHALL be paged with `page` (1-based, default 1, at most 500) and `pageSize` (default 20, 1 to 100), sorted newest first unless the public list is given another sort, and SHALL return `items`, `page`, `pageSize`, and `totalCount`. Values outside these ranges MUST give 400 Bad Request naming the parameter.
 
 #### Scenario: First page
 - **WHEN** a client lists listings without paging parameters while 25 non-deleted listings exist
