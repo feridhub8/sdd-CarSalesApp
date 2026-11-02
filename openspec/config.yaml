@@ -7,6 +7,7 @@ context: |
   Repository: monorepo.
     - services/ms-<name>/   one folder per microservice
     - api-gateway/          YARP
+    - web/                  React, Vite, and TypeScript, served through api-gateway; service number 81
     - infrastructure/       Docker setup of infrastructure tools
     - CarSales.slnx         root solution referencing every project
     - docker-compose.yml    root compose (Production) that includes every service and infrastructure compose file

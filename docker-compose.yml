@@ -3,5 +3,6 @@ name: carsales
 include:
   - infrastructure/docker-compose.yml
   - api-gateway/docker-compose.yml
+  - web/docker-compose.yml
   - services/ms-auth/docker-compose.yml
   - services/ms-listing/docker-compose.yml

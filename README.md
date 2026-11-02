@@ -7,10 +7,11 @@ Car sales platform built as .NET 10 microservices.
 | Service | Folder |
 |---|---|
 | api-gateway | `api-gateway/` |
+| web | `web/` |
 | ms-auth | `services/ms-auth/` |
 | ms-listing | `services/ms-listing/` |
 
-Clients use only `api-gateway`. It forwards each request to the service that owns it (see [`api-gateway/README.md`](api-gateway/README.md)).
+Clients use only `api-gateway`. It forwards each request to the service that owns it (see [`api-gateway/README.md`](api-gateway/README.md)). The website is served through it too (see [`web/README.md`](web/README.md)).
 
 ## Infrastructure
 
@@ -38,15 +39,15 @@ docker compose -f infrastructure/docker-compose.yml run --rm vault-unseal
 
 ## Ports
 
-The first digit is the environment, the last digits are the service number. `api-gateway` is number `80`.
+The first digit is the environment, the last digits are the service number. `api-gateway` is number `80`, `web` is `81`.
 
-| Environment | Runs with | api-gateway | ms-auth | ms-listing |
-|---|---|---|---|---|
-| Local | `dotnet run` / IDE | `5080` | `5001` | `5002` |
-| Development | Docker, `docker-compose.dev.yml` | `6080` | no host port | no host port |
-| Production | Docker, `docker-compose.yml` | `7080` | no host port | no host port |
+| Environment | Runs with | api-gateway | web | ms-auth | ms-listing |
+|---|---|---|---|---|---|
+| Local | `dotnet run`, `npm run dev`, IDE | `5080` | `5081` | `5001` | `5002` |
+| Development | Docker, `docker-compose.dev.yml` | `6080` | no host port | no host port | no host port |
+| Production | Docker, `docker-compose.yml` | `7080` | no host port | no host port | no host port |
 
-In Docker, services publish no host port: clients reach them only through the gateway, and services can be scaled with `--scale`. Local runs reach every service directly as well.
+In Docker, services publish no host port: clients reach them, and the website, only through the gateway, and services can be scaled with `--scale`. Local runs reach every service directly as well; open the website on `5081`.
 
 ## Docker
 

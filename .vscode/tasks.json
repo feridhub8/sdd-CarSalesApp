@@ -33,6 +33,19 @@
       ],
       "problemMatcher": "$msCompile",
       "group": "build"
+    },
+    {
+      "label": "build web",
+      "command": "npm",
+      "type": "process",
+      "args": [
+        "run",
+        "build"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/web"
+      },
+      "group": "build"
     }
   ]
 }

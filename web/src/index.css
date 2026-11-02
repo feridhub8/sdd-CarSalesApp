@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+/* Named colors, so a dark mode can later swap them in one place. */
+@theme {
+  --color-page: #f8fafc;
+  --color-surface: #ffffff;
+  --color-line: #e2e8f0;
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-accent: #1d4ed8;
+  --color-accent-strong: #1e3a8a;
+  --color-danger: #b91c1c;
+  --color-success: #15803d;
+}
+
+body {
+  @apply bg-page text-ink antialiased;
+}

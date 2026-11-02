@@ -10,4 +10,7 @@ var app = builder.Build();
 app.MapReverseProxy();
 app.MapHealthCheckEndpoints();
 
+// Without this an unknown API path would fall through to the website's catch-all route.
+app.Map("/api/{**rest}", () => Results.NotFound());
+
 app.Run();

@@ -1,0 +1,14 @@
+name: carsales
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+    restart: unless-stopped
+    networks:
+      - carsales_network
+
+networks:
+  carsales_network:
+    external: true

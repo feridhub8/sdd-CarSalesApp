@@ -30,6 +30,13 @@
       "cwd": "${workspaceFolder}/services/ms-listing/src/WebApi",
       "launchSettingsFilePath": "${workspaceFolder}/services/ms-listing/src/WebApi/Properties/launchSettings.json",
       "launchSettingsProfile": "http"
+    },
+    {
+      "name": "web (Local)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/web"
     }
   ],
   "compounds": [
@@ -38,7 +45,8 @@
       "configurations": [
         "api-gateway (Local)",
         "ms-auth (Local)",
-        "ms-listing (Local)"
+        "ms-listing (Local)",
+        "web (Local)"
       ],
       "stopAll": true
     }
