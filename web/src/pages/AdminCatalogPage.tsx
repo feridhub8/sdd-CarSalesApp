@@ -21,6 +21,7 @@ import { Field } from '../components/Field';
 import { Loading } from '../components/Loading';
 import { SelectField } from '../components/SelectField';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 const KINDS: CatalogKind[] = ['Brand', 'Model', 'City'];
 
@@ -28,7 +29,7 @@ const KINDS: CatalogKind[] = ['Brand', 'Model', 'City'];
 function messageFor(failure: unknown, kind: CatalogKind, action: 'save' | 'delete' | 'restore') {
   const errors = az.admin.errors;
   if (!(failure instanceof ApiError)) {
-    return az.errors.unavailable;
+    return failureMessage(failure);
   }
   if (failure.status === 400) {
     return 'brandId' in failure.fieldErrors ? errors.brandUnavailable : errors.name;
@@ -45,7 +46,7 @@ function messageFor(failure: unknown, kind: CatalogKind, action: 'save' | 'delet
     }
     return kind === 'Brand' ? errors.brandHasModels : kind === 'Model' ? errors.modelHasListings : errors.cityHasListings;
   }
-  return az.errors.unavailable;
+  return failureMessage(failure);
 }
 
 function CatalogRow({
@@ -180,7 +181,7 @@ function CatalogSection({ kind }: { kind: CatalogKind }) {
     return <Loading />;
   }
   if (entries.isError) {
-    return <ErrorRetry onRetry={() => entries.refetch()} />;
+    return <ErrorRetry error={entries.error} onRetry={() => entries.refetch()} />;
   }
 
   const brandOptions = (brands.data ?? []).map((brand) => ({ value: brand.id, label: brand.name }));

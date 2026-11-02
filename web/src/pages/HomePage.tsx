@@ -31,7 +31,7 @@ export function HomePage() {
     <section>
       <h1 className="text-2xl font-bold">{az.home.title}</h1>
       {listings.isPending ? <Loading /> : null}
-      {listings.isError ? <ErrorRetry onRetry={() => listings.refetch()} /> : null}
+      {listings.isError ? <ErrorRetry error={listings.error} onRetry={() => listings.refetch()} /> : null}
       {listings.isSuccess && listings.data.totalCount === 0 ? <p className="py-16 text-center text-muted">{az.home.empty}</p> : null}
       {listings.isSuccess && listings.data.totalCount > 0 && listings.data.items.length === 0 ? (
         <p className="py-16 text-center text-muted">

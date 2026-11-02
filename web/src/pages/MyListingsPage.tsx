@@ -19,7 +19,7 @@ export function MyListingsPage() {
     <section>
       <h1 className="text-2xl font-bold">{az.myListings.title}</h1>
       {mine.isPending ? <Loading /> : null}
-      {mine.isError ? <ErrorRetry onRetry={() => mine.refetch()} /> : null}
+      {mine.isError ? <ErrorRetry error={mine.error} onRetry={() => mine.refetch()} /> : null}
       {mine.isSuccess && mine.data.items.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-muted">{az.myListings.empty}</p>

@@ -6,6 +6,7 @@ import { Button } from '../components/Button';
 import { Field } from '../components/Field';
 import { formatPhone, normalizePhone } from '../format';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 export function ProfilePage() {
   const { auth, savePhone } = useAuth();
@@ -43,7 +44,7 @@ export function ProfilePage() {
       if (failure instanceof ApiError && failure.status === 400) {
         setPhoneError(az.phone.invalid);
       } else {
-        setFormError(az.errors.unavailable);
+        setFormError(failureMessage(failure));
       }
     } finally {
       setBusy(false);

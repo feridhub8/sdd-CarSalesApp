@@ -14,6 +14,7 @@ import { az } from '../i18n/az';
 import { ACCEPTED_IMAGE_TYPES, MAX_IMAGES, refuseReason, type UploadResult } from '../images';
 import { NotAllowedPage } from './NotAllowedPage';
 import { NotFoundPage } from './NotFoundPage';
+import { failureMessage } from '../errors';
 
 function ImageTile({
   image,
@@ -69,7 +70,7 @@ function ImageManager({ listing }: { listing: Listing }) {
   const [uploads, setUploads] = useState<UploadResult[]>(fromForm);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [actionFailed, setActionFailed] = useState(false);
+  const [actionFailed, setActionFailed] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<ListingImage | null>(null);
 
   const text = az.images;
@@ -85,7 +86,7 @@ function ImageManager({ listing }: { listing: Listing }) {
   const addFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     event.target.value = '';
-    setActionFailed(false);
+    setActionFailed(null);
 
     // Refused here without sending: the wrong type, too large, or past the limit.
     let free = MAX_IMAGES - images.length;
@@ -117,7 +118,7 @@ function ImageManager({ listing }: { listing: Listing }) {
         await refresh();
       } catch (failure) {
         const status = failure instanceof ApiError ? failure.status : 0;
-        update(upload.key, 'failed', status === 400 || status === 413 ? text.status.rejected : status === 409 ? text.status.limit : text.status.unavailable);
+        update(upload.key, 'failed', status === 400 || status === 413 ? text.status.rejected : status === 409 ? text.status.limit : status === 429 ? az.errors.tooMany : text.status.unavailable);
       }
     }
     setUploading(false);
@@ -129,12 +130,12 @@ function ImageManager({ listing }: { listing: Listing }) {
     ordered.splice(to, 0, moved);
 
     setSaving(true);
-    setActionFailed(false);
+    setActionFailed(null);
     try {
       await reorderImages(listing.id, ordered.map((image) => image.id));
       await refresh();
-    } catch {
-      setActionFailed(true);
+    } catch (failure) {
+      setActionFailed(failureMessage(failure));
       await refresh();
     } finally {
       setSaving(false);
@@ -149,11 +150,11 @@ function ImageManager({ listing }: { listing: Listing }) {
     }
 
     setSaving(true);
-    setActionFailed(false);
+    setActionFailed(null);
     try {
       await deleteImage(image.id);
-    } catch {
-      setActionFailed(true);
+    } catch (failure) {
+      setActionFailed(failureMessage(failure));
     } finally {
       await refresh();
       setSaving(false);
@@ -197,7 +198,7 @@ function ImageManager({ listing }: { listing: Listing }) {
 
       {actionFailed ? (
         <div className="mt-4">
-          <Alert kind="error">{az.errors.unavailable}</Alert>
+          <Alert kind="error">{actionFailed}</Alert>
         </div>
       ) : null}
 
@@ -226,7 +227,7 @@ export function ListingImagesPage() {
   }
   if (listing.isError) {
     const status = listing.error instanceof ApiError ? listing.error.status : 0;
-    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry onRetry={() => listing.refetch()} />;
+    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry error={listing.error} onRetry={() => listing.refetch()} />;
   }
   if (auth.status !== 'signedIn' || auth.user.id !== listing.data.ownerId) {
     return <NotAllowedPage />;

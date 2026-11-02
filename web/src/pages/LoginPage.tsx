@@ -7,6 +7,7 @@ import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Field } from '../components/Field';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 export function LoginPage() {
   const { signIn } = useAuth();
@@ -32,8 +33,12 @@ export function LoginPage() {
     } catch (failure) {
       const status = failure instanceof ApiError ? failure.status : 0;
       // One general message: it must not say which of the two was wrong.
-      setError(status === 401 || status === 400 ? az.login.wrong : az.errors.unavailable);
-      setPassword('');
+      const refused = status === 401 || status === 400;
+      setError(refused ? az.login.wrong : failureMessage(failure));
+      // Only refused credentials are worth retyping; a limit or an outage says nothing about the password.
+      if (refused) {
+        setPassword('');
+      }
     } finally {
       setBusy(false);
     }

@@ -15,7 +15,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 3. Website
 
-- [ ] 3.1 Add the rate limit message, its use in every place from design §7, and the sign-in hint; verify with Playwright the `Rate limit messages` and `Hint for a locked account` scenarios at both widths, including that a 429 on renewal does not end the login; update the existing suites and run them with raised limits
+- [x] 3.1 Add the rate limit message, its use in every place from design §7, and the sign-in hint; verify with Playwright the `Rate limit messages` and `Hint for a locked account` scenarios at both widths, including that a 429 on renewal does not end the login; update the existing suites and run them with raised limits
 
 ## 4. Whole system in Docker
 

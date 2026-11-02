@@ -6,6 +6,7 @@ import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Field } from '../components/Field';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 type Errors = Partial<Record<keyof Registration, string>>;
 
@@ -84,7 +85,7 @@ export function RegisterPage() {
           setFormError(az.errors.invalid);
         }
       } else {
-        setFormError(az.errors.unavailable);
+        setFormError(failureMessage(failure));
       }
     } finally {
       setBusy(false);

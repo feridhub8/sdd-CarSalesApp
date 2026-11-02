@@ -13,6 +13,7 @@ import { Loading } from '../components/Loading';
 import { Pagination, readPage } from '../components/Pagination';
 import { formatPrice } from '../format';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 const MAX_PAGE = 500;
 
@@ -37,7 +38,7 @@ export function AdminListingsPage() {
       await action();
     } catch (failure) {
       const status = failure instanceof ApiError ? failure.status : 0;
-      setError(status === 409 ? onConflict : status === 404 ? text.errors.gone : az.errors.unavailable);
+      setError(status === 409 ? onConflict : status === 404 ? text.errors.gone : failureMessage(failure));
     } finally {
       await refresh();
       setBusy(false);
@@ -57,7 +58,7 @@ export function AdminListingsPage() {
         </div>
       ) : null}
       {listings.isPending ? <Loading /> : null}
-      {listings.isError ? <ErrorRetry onRetry={() => listings.refetch()} /> : null}
+      {listings.isError ? <ErrorRetry error={listings.error} onRetry={() => listings.refetch()} /> : null}
       {listings.isSuccess && listings.data.items.length === 0 ? <p className="py-16 text-center text-muted">{text.noListings}</p> : null}
       {listings.isSuccess && listings.data.items.length > 0 ? (
         <>

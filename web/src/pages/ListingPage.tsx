@@ -14,25 +14,26 @@ import { Loading } from '../components/Loading';
 import { formatDate, formatEngine, formatMileage, formatPhone, formatPrice, label } from '../format';
 import { az } from '../i18n/az';
 import { NotFoundPage } from './NotFoundPage';
+import { failureMessage } from '../errors';
 
 function Gallery({ listing, images, canDelete }: { listing: Listing; images: ListingImage[]; canDelete: boolean }) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
   const selected = images.find((image) => image.id === selectedId) ?? images[0];
 
   const removeSelected = async () => {
     setConfirming(false);
-    setFailed(false);
+    setFailed(null);
     if (!selected) {
       return;
     }
     try {
       await deleteImage(selected.id);
       setSelectedId(null);
-    } catch {
-      setFailed(true);
+    } catch (failure) {
+      setFailed(failureMessage(failure));
     } finally {
       await queryClient.invalidateQueries({ queryKey: ['listing', listing.id] });
       await queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -63,7 +64,7 @@ function Gallery({ listing, images, canDelete }: { listing: Listing; images: Lis
       ) : null}
       {canDelete && selected ? (
         <div className="mt-3 space-y-3">
-          {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+          {failed ? <Alert kind="error">{failed}</Alert> : null}
           <Button variant="danger" onClick={() => setConfirming(true)}>
             {az.listing.adminDeleteImage}
           </Button>
@@ -106,7 +107,7 @@ function SellerContact({ ownerId }: { ownerId: string }) {
   if (unavailable) {
     return (
       <div className="mt-4 space-y-3">
-        <Alert kind="error">{az.errors.unavailable}</Alert>
+        <Alert kind="error">{failureMessage(seller.error)}</Alert>
         <Button variant="secondary" className="w-full" onClick={() => seller.refetch()}>
           {az.common.retry}
         </Button>
@@ -136,26 +137,26 @@ function OwnerControls({ id }: { id: string }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
   const linkStyle = 'rounded-lg border border-line bg-surface px-4 py-2 text-center font-medium hover:bg-page';
 
   const remove = async () => {
     setConfirming(false);
-    setFailed(false);
+    setFailed(null);
     try {
       await deleteListing(id);
       queryClient.removeQueries({ queryKey: ['listing', id] });
       await queryClient.invalidateQueries({ queryKey: ['listings'] });
       await queryClient.invalidateQueries({ queryKey: ['my-listings'] });
       navigate('/my-listings');
-    } catch {
-      setFailed(true);
+    } catch (failure) {
+      setFailed(failureMessage(failure));
     }
   };
 
   return (
     <div className="mt-4 space-y-3">
-      {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+      {failed ? <Alert kind="error">{failed}</Alert> : null}
       <div className="flex flex-wrap gap-2">
         <Link to={`/listings/${id}/edit`} className={linkStyle}>
           {az.listing.edit}
@@ -177,25 +178,25 @@ function AdminControls({ id }: { id: string }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
 
   const remove = async () => {
     setConfirming(false);
-    setFailed(false);
+    setFailed(null);
     try {
       await deleteListing(id);
       queryClient.removeQueries({ queryKey: ['listing', id] });
       await queryClient.invalidateQueries({ queryKey: ['listings'] });
       await queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
       navigate('/admin/listings');
-    } catch {
-      setFailed(true);
+    } catch (failure) {
+      setFailed(failureMessage(failure));
     }
   };
 
   return (
     <div className="mt-4 space-y-3">
-      {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+      {failed ? <Alert kind="error">{failed}</Alert> : null}
       <Button variant="danger" onClick={() => setConfirming(true)}>
         {az.listing.adminDeleteListing}
       </Button>
@@ -223,7 +224,7 @@ export function ListingPage() {
   if (listing.isError) {
     const status = listing.error instanceof ApiError ? listing.error.status : 0;
     // An address that is not a valid id cannot name a listing either.
-    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry onRetry={() => listing.refetch()} />;
+    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry error={listing.error} onRetry={() => listing.refetch()} />;
   }
 
   const item = listing.data;

@@ -2,19 +2,20 @@ import { useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { az } from '../i18n/az';
+import { failureMessage } from '../errors';
 
 export function Layout() {
   const { auth, signOut } = useAuth();
   const navigate = useNavigate();
-  const [signOutFailed, setSignOutFailed] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
-    setSignOutFailed(false);
+    setSignOutError(null);
     try {
       await signOut();
       navigate('/');
-    } catch {
-      setSignOutFailed(true);
+    } catch (failure) {
+      setSignOutError(failureMessage(failure));
     }
   };
 
@@ -62,9 +63,9 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      {signOutFailed ? (
+      {signOutError ? (
         <div role="alert" className="border-b border-line bg-surface px-4 py-3 text-center text-sm text-danger">
-          {az.errors.unavailable}
+          {signOutError}
         </div>
       ) : null}
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">

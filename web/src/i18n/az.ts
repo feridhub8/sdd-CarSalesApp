@@ -12,6 +12,7 @@ export const az = {
   },
   errors: {
     unavailable: 'Xidmət hazırda əlçatan deyil. Bir az sonra yenidən cəhd edin.',
+    tooMany: 'Çox sayda sorğu göndərildi. Bir az sonra yenidən cəhd edin.',
     invalid: 'Daxil etdiyiniz məlumatları yoxlayın.',
   },
   nav: {
@@ -141,7 +142,7 @@ export const az = {
     password: 'Şifrə',
     submit: 'Daxil ol',
     missing: 'İstifadəçi adı və ya e-poçtu və şifrəni daxil edin.',
-    wrong: 'Giriş məlumatları yanlışdır.',
+    wrong: 'Giriş məlumatları yanlışdır. Bir neçə dəfə səhv yazmısınızsa, bir az gözləyin.',
     registered: 'Hesabınız yaradıldı. İndi daxil ola bilərsiniz.',
     noAccount: 'Hesabınız yoxdur?',
     toRegister: 'Qeydiyyatdan keçin',

@@ -18,6 +18,7 @@ import { az } from '../i18n/az';
 import type { UploadResult } from '../images';
 import { NotAllowedPage } from './NotAllowedPage';
 import { NotFoundPage } from './NotFoundPage';
+import { failureMessage } from '../errors';
 
 // What the form holds: text as typed, turned into numbers only when sent.
 type FormValues = {
@@ -214,7 +215,7 @@ function ListingForm({ listing }: { listing?: Listing }) {
         update(picture.key, 'done', status.done);
       } catch (failure) {
         const code = failure instanceof ApiError ? failure.status : 0;
-        update(picture.key, 'failed', code === 400 || code === 413 ? status.rejected : code === 409 ? status.limit : status.unavailable);
+        update(picture.key, 'failed', code === 400 || code === 413 ? status.rejected : code === 409 ? status.limit : code === 429 ? az.errors.tooMany : status.unavailable);
       }
     }
     return results;
@@ -250,7 +251,7 @@ function ListingForm({ listing }: { listing?: Listing }) {
             setErrors({ phone: az.phone.invalid });
             setFormError(az.errors.invalid);
           } else {
-            setFormError(az.errors.unavailable);
+            setFormError(failureMessage(failure));
           }
           return;
         }
@@ -285,7 +286,7 @@ function ListingForm({ listing }: { listing?: Listing }) {
         setErrors(next);
         setFormError(az.errors.invalid);
       } else {
-        setFormError(az.errors.unavailable);
+        setFormError(failureMessage(failure));
       }
     } finally {
       setBusy(false);
@@ -298,6 +299,7 @@ function ListingForm({ listing }: { listing?: Listing }) {
   if (brands.isError || cities.isError) {
     return (
       <ErrorRetry
+        error={brands.error ?? cities.error}
         onRetry={() => {
           brands.refetch();
           cities.refetch();
@@ -402,7 +404,7 @@ function EditListing({ id }: { id: string }) {
   }
   if (listing.isError) {
     const status = listing.error instanceof ApiError ? listing.error.status : 0;
-    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry onRetry={() => listing.refetch()} />;
+    return status === 404 || status === 400 ? <NotFoundPage /> : <ErrorRetry error={listing.error} onRetry={() => listing.refetch()} />;
   }
   // Only the owner edits; the API refuses anyone else, admins included.
   if (auth.status !== 'signedIn' || auth.user.id !== listing.data.ownerId) {
