@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router';
-import { RequireAuth } from './auth/RequireAuth';
+import { RequireAdmin, RequireAuth } from './auth/RequireAuth';
 import { Layout } from './components/Layout';
+import { AdminCatalogPage } from './pages/AdminCatalogPage';
+import { AdminListingsPage } from './pages/AdminListingsPage';
 import { HomePage } from './pages/HomePage';
 import { ListingFormPage } from './pages/ListingFormPage';
 import { ListingImagesPage } from './pages/ListingImagesPage';
@@ -23,6 +25,10 @@ export function App() {
           <Route path="listings/new" element={<ListingFormPage />} />
           <Route path="listings/:id/edit" element={<ListingFormPage />} />
           <Route path="listings/:id/images" element={<ListingImagesPage />} />
+          <Route element={<RequireAdmin />}>
+            <Route path="admin/catalog" element={<AdminCatalogPage />} />
+            <Route path="admin/listings" element={<AdminListingsPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

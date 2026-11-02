@@ -114,3 +114,16 @@ export function reorderImages(listingId: string, imageIds: string[]) {
 export function deleteImage(id: string) {
   return api<void>(`${API}/ListingImage/Delete/${id}`, { method: 'DELETE' });
 }
+
+export type ListingWithDeleted = Listing & {
+  isDeleted: boolean;
+  deletedAt: string | null;
+};
+
+export function getListingsWithDeleted(page: number) {
+  return api<Page<ListingWithDeleted>>(`${API}/Listing/WithDeleted?page=${page}&pageSize=${LISTINGS_PAGE_SIZE}`);
+}
+
+export function restoreListing(id: string) {
+  return api<void>(`${API}/Listing/Restore/${id}`, { method: 'PATCH' });
+}

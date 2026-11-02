@@ -37,6 +37,11 @@ export function Layout() {
                 <Link to="/listings/new" className="rounded-lg bg-accent px-3 py-1.5 text-white hover:bg-accent-strong">
                   {az.nav.newListing}
                 </Link>
+                {auth.isAdmin ? (
+                  <Link to="/admin/catalog" className="hover:text-accent">
+                    {az.nav.admin}
+                  </Link>
+                ) : null}
                 <span className="max-w-40 truncate text-muted" data-testid="current-user">
                   {auth.user.username}
                 </span>

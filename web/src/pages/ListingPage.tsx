@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/http';
-import { deleteListing, getListing, type Listing, type ListingImage } from '../api/listings';
+import { deleteImage, deleteListing, getListing, type Listing, type ListingImage } from '../api/listings';
 import { useAuth } from '../auth/AuthContext';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
@@ -14,9 +14,29 @@ import { formatDate, formatEngine, formatMileage, formatPrice, label } from '../
 import { az } from '../i18n/az';
 import { NotFoundPage } from './NotFoundPage';
 
-function Gallery({ listing, images }: { listing: Listing; images: ListingImage[] }) {
+function Gallery({ listing, images, canDelete }: { listing: Listing; images: ListingImage[]; canDelete: boolean }) {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [failed, setFailed] = useState(false);
   const selected = images.find((image) => image.id === selectedId) ?? images[0];
+
+  const removeSelected = async () => {
+    setConfirming(false);
+    setFailed(false);
+    if (!selected) {
+      return;
+    }
+    try {
+      await deleteImage(selected.id);
+      setSelectedId(null);
+    } catch {
+      setFailed(true);
+    } finally {
+      await queryClient.invalidateQueries({ queryKey: ['listing', listing.id] });
+      await queryClient.invalidateQueries({ queryKey: ['listings'] });
+    }
+  };
   const name = `${listing.brandName} ${listing.modelName}`;
 
   return (
@@ -38,6 +58,15 @@ function Gallery({ listing, images }: { listing: Listing; images: ListingImage[]
               <img src={image.thumbnailUrl} alt="" className="h-full w-full object-cover" />
             </button>
           ))}
+        </div>
+      ) : null}
+      {canDelete && selected ? (
+        <div className="mt-3 space-y-3">
+          {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+          <Button variant="danger" onClick={() => setConfirming(true)}>
+            {az.listing.adminDeleteImage}
+          </Button>
+          <ConfirmDialog open={confirming} text={az.listing.adminConfirmDeleteImage} onConfirm={removeSelected} onCancel={() => setConfirming(false)} />
         </div>
       ) : null}
     </div>
@@ -93,6 +122,38 @@ function OwnerControls({ id }: { id: string }) {
   );
 }
 
+// An admin who is not the owner can remove a listing or its images, but cannot edit them.
+function AdminControls({ id }: { id: string }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const remove = async () => {
+    setConfirming(false);
+    setFailed(false);
+    try {
+      await deleteListing(id);
+      queryClient.removeQueries({ queryKey: ['listing', id] });
+      await queryClient.invalidateQueries({ queryKey: ['listings'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+      navigate('/admin/listings');
+    } catch {
+      setFailed(true);
+    }
+  };
+
+  return (
+    <div className="mt-4 space-y-3">
+      {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+      <Button variant="danger" onClick={() => setConfirming(true)}>
+        {az.listing.adminDeleteListing}
+      </Button>
+      <ConfirmDialog open={confirming} text={az.listing.adminConfirmDelete} onConfirm={remove} onCancel={() => setConfirming(false)} />
+    </div>
+  );
+}
+
 export function ListingPage() {
   const { auth } = useAuth();
   const { id = '' } = useParams();
@@ -116,6 +177,8 @@ export function ListingPage() {
   }
 
   const item = listing.data;
+  const isOwner = auth.status === 'signedIn' && auth.user.id === item.ownerId;
+  const isOtherAdmin = auth.status === 'signedIn' && auth.isAdmin && !isOwner;
   const { fields, labels } = az.listing;
   const engine = formatEngine(item.engineVolume);
   const notes = [item.isCredit && fields.credit, item.isBarter && fields.barter, item.isPainted && fields.painted, item.isDamaged && fields.damaged].filter(
@@ -126,7 +189,7 @@ export function ListingPage() {
     // Phone order: gallery, facts, description. Desktop keeps the description under the gallery.
     <article className="grid items-start gap-6 lg:grid-cols-[3fr_2fr] lg:grid-rows-[auto_1fr] lg:gap-x-8">
       <div className="min-w-0">
-        <Gallery listing={item} images={item.images ?? []} />
+        <Gallery listing={item} images={item.images ?? []} canDelete={isOtherAdmin} />
       </div>
       <div className="min-w-0 lg:row-span-2">
         <div className="rounded-xl border border-line bg-surface p-5">
@@ -157,7 +220,8 @@ export function ListingPage() {
             {item.vin ? <Fact name={fields.vin} value={item.vin} /> : null}
             <Fact name={fields.createdAt} value={formatDate(item.createdAt)} />
           </dl>
-          {auth.status === 'signedIn' && auth.user.id === item.ownerId ? <OwnerControls id={item.id} /> : null}
+          {isOwner ? <OwnerControls id={item.id} /> : null}
+          {isOtherAdmin ? <AdminControls id={item.id} /> : null}
         </div>
       </div>
       {item.description ? (

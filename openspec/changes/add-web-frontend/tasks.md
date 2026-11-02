@@ -25,7 +25,7 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 5. Admin area
 
-- [ ] 5.1 Add `/admin/catalog` and `/admin/listings`, and admin delete controls on listing pages; verify with Playwright the `Admin area` scenarios, including conflicts, with a temporary admin and a plain user
+- [x] 5.1 Add `/admin/catalog` and `/admin/listings`, and admin delete controls on listing pages; verify with Playwright the `Admin area` scenarios, including conflicts, with a temporary admin and a plain user
 
 ## 6. Whole site in Docker
 
