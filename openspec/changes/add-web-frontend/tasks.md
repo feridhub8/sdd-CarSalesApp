@@ -29,8 +29,13 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 6. Whole site in Docker
 
-- [ ] 6.1 Run the full Playwright walk in Development (`6080`) and then Production (`7080`): register, sign in, create a listing, upload, reorder, delete, admin catalog and restore, reload at each step, and the `Language` scenario by searching pages for English, and the `Failures` scenario with `ms-listing` really stopped; remove test data, users, and containers afterwards
-- [ ] 6.2 Run `graphify update .`; verify `git status` shows no `node_modules`, `dist`, secrets, or `.env` files, and the root `README.md` matches the running stack
+- [x] 6.1 Run the full Playwright walk in Development (`6080`) and then Production (`7080`): register, sign in, create a listing, upload, reorder, delete, admin catalog and restore, reload at each step, and the `Language` scenario by searching pages for English, and the `Failures` scenario with `ms-listing` really stopped; remove test data, users, and containers afterwards
+- [x] 6.2 Run `graphify update .`; verify `git status` shows no `node_modules`, `dist`, secrets, or `.env` files, and the root `README.md` matches the running stack
+
+## 7. Images in the new-listing form
+
+- [x] 7.1 Add image choosing to the new-listing form (previews, order, remove, checks before sending, at least one required), save the listing and then its images, and move to the image page when an upload fails (design §8); verify with Playwright the new scenarios of `Own listings` and `Listing images` in Local at both widths and read the screenshots
+- [x] 7.2 Run the own-listing suite and the full walk in Development and the full walk in Production; remove test data and users, leaving the user's own data; run `graphify update .`
 
 ## Workflow follow-up
 

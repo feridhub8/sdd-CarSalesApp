@@ -112,6 +112,8 @@ Alternative: translating the APIs' messages. Rejected, since it would need a bac
 
 Admins delete another user's listing or image from its normal page.
 
+Images are chosen in the new-listing form, as the user asked, with at least one required there. The API still creates a listing first and takes images one at a time, so saving runs in that order: create, then upload each file. A listing exists once the first step succeeds, so if an upload then fails the site must not stay on the form, where saving again would create a second listing. It moves to the image page and shows which files failed. The one-image rule lives only in the form; the API keeps allowing listings without images.
+
 ### 9. Look
 
 Light and clean: white background, neutral grays, one accent color, and system fonts, with images in front. Colors are named tokens, so a dark mode can come later. The user reviews the first version and asks for changes.
@@ -125,6 +127,7 @@ After each group, Playwright scripts in the scratchpad walk the pages in Chromiu
 - **Search engines see an empty page:** listings will not rank well. → Accepted by choosing a static site; moving to server rendering later reuses most components.
 - **Reload during a refresh:** if the browser drops the response, it still holds the old cookie, and the next use ends the login. → Rare; the person signs in again.
 - **Safari on `http://localhost`:** may refuse the `Secure` cookie, so sessions may not survive a reload there. Not tested. → The user works in Chrome, and a real server uses HTTPS.
+- **Closing the tab while saving:** a listing may stay with some or none of its images, since the API has no single call for both. → The owner sees it in their list and can add images on its image page.
 - **No filters and no seller contact:** the site can only browse and cannot yet connect buyers and sellers. → Both are planned as later changes.
 - **TypeScript 7 and Vite 8 are new major versions:** tools may not all support them. → Task 1.1 checks this first and may pin older versions.
 - **Keeping JavaScript dependencies current:** this is the repository's first npm project. → Versions are pinned and `package-lock.json` is committed.

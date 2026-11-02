@@ -3,15 +3,18 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { getBrands, getCities, getModels } from '../api/catalog';
 import { ApiError } from '../api/http';
-import { createListing, getListing, updateListing, type Listing, type ListingFields } from '../api/listings';
+import { createListing, getListing, updateListing, uploadImage, type Listing, type ListingFields } from '../api/listings';
 import { useAuth } from '../auth/AuthContext';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { ErrorRetry } from '../components/ErrorRetry';
 import { Field } from '../components/Field';
+import { ImagePicker, type PickedImage } from '../components/ImagePicker';
 import { Loading } from '../components/Loading';
 import { SelectField } from '../components/SelectField';
+import { UploadRows } from '../components/UploadRows';
 import { az } from '../i18n/az';
+import type { UploadResult } from '../images';
 import { NotAllowedPage } from './NotAllowedPage';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -165,6 +168,8 @@ function ListingForm({ listing }: { listing?: Listing }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pictures, setPictures] = useState<PickedImage[]>([]);
+  const [uploads, setUploads] = useState<UploadResult[]>([]);
 
   const brands = useQuery({ queryKey: ['brands'], queryFn: getBrands });
   const cities = useQuery({ queryKey: ['cities'], queryFn: getCities });
@@ -188,11 +193,38 @@ function ListingForm({ listing }: { listing?: Listing }) {
     setValues((current) => ({ ...current, [name]: event.target.checked }));
   };
 
+  // One at a time, so the images land in the order shown.
+  const uploadPictures = async (listingId: string) => {
+    const status = az.images.status;
+    let results: UploadResult[] = pictures.map((picture) => ({ key: picture.key, name: picture.file.name, state: 'waiting', message: status.waiting }));
+    const update = (key: number, state: UploadResult['state'], message: string) => {
+      results = results.map((result) => (result.key === key ? { ...result, state, message } : result));
+      setUploads(results);
+    };
+
+    setUploads(results);
+    for (const picture of pictures) {
+      update(picture.key, 'uploading', status.uploading);
+      try {
+        await uploadImage(listingId, picture.file);
+        update(picture.key, 'done', status.done);
+      } catch (failure) {
+        const code = failure instanceof ApiError ? failure.status : 0;
+        update(picture.key, 'failed', code === 400 || code === 413 ? status.rejected : code === 409 ? status.limit : status.unavailable);
+      }
+    }
+    return results;
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setFormError(null);
 
     const found = validate(values);
+    // A new listing starts with its images; an existing one manages them on its image page.
+    if (!listing && pictures.length === 0) {
+      found.pictures = az.images.required;
+    }
     setErrors(found);
     if (Object.keys(found).length > 0) {
       setFormError(az.errors.invalid);
@@ -202,11 +234,21 @@ function ListingForm({ listing }: { listing?: Listing }) {
     setBusy(true);
     try {
       const saved = listing ? await updateListing(listing.id, toFields(values)) : await createListing(toFields(values));
-      queryClient.setQueryData(['listing', saved.id], saved);
+      const results = listing ? [] : await uploadPictures(saved.id);
+      if (listing) {
+        queryClient.setQueryData(['listing', saved.id], saved);
+      } else {
+        queryClient.removeQueries({ queryKey: ['listing', saved.id] });
+      }
       await queryClient.invalidateQueries({ queryKey: ['listings'] });
       await queryClient.invalidateQueries({ queryKey: ['my-listings'] });
-      // A new listing goes straight to adding its images.
-      navigate(listing ? `/listings/${saved.id}` : `/listings/${saved.id}/images`);
+
+      // The listing exists now, so the form must not stay open: saving again would create another one.
+      if (results.some((result) => result.state === 'failed')) {
+        navigate(`/listings/${saved.id}/images`, { state: { uploads: results } });
+      } else {
+        navigate(`/listings/${saved.id}`);
+      }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 400) {
         const next: Record<string, string> = {};
@@ -308,6 +350,8 @@ function ListingForm({ listing }: { listing?: Listing }) {
             </label>
           ))}
         </div>
+        {listing ? null : <ImagePicker pictures={pictures} onChange={setPictures} error={errors.pictures} disabled={busy} />}
+        <UploadRows uploads={uploads} />
         {formError ? <Alert kind="error">{formError}</Alert> : null}
         <Button type="submit" disabled={busy} className="w-full sm:w-auto">
           {busy ? az.common.wait : az.common.save}

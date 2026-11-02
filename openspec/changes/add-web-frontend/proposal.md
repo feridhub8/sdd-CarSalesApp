@@ -8,7 +8,7 @@ Accounts, listings, and images work, but only through API calls. People need a w
 
 - New `web/` application, in Azerbaijani, usable on a phone and on a computer, served through `api-gateway`.
 - **Anyone:** browse listings as a card grid with paging, open a listing with its image gallery, register, and sign in.
-- **Signed-in users:** stay signed in across reloads and tabs, sign out, list their own listings, create, edit, and delete them, and upload, order, and delete their images.
+- **Signed-in users:** stay signed in across reloads and tabs, sign out, list their own listings, create one with its images in a single form, edit and delete them, and later upload, order, and delete images.
 - **Admins:** manage brands, models, and cities, see deleted listings and restore them, and delete any listing or image.
 - **Gateway:** paths outside the API and the image files now go to the website. **BREAKING:** an unknown path outside `/api/` no longer gives 404 from the gateway; unknown `/api/` paths still do.
 - New global rule section for a frontend in a microservices repository, and service number `81` for `web`.

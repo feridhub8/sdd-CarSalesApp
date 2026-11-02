@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, type ChangeEvent } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useLocation, useParams } from 'react-router';
 import { ApiError } from '../api/http';
 import { deleteImage, getListing, reorderImages, uploadImage, type Listing, type ListingImage } from '../api/listings';
 import { useAuth } from '../auth/AuthContext';
@@ -9,20 +9,11 @@ import { Button } from '../components/Button';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ErrorRetry } from '../components/ErrorRetry';
 import { Loading } from '../components/Loading';
+import { UploadRows } from '../components/UploadRows';
 import { az } from '../i18n/az';
+import { ACCEPTED_IMAGE_TYPES, MAX_IMAGES, refuseReason, type UploadResult } from '../images';
 import { NotAllowedPage } from './NotAllowedPage';
 import { NotFoundPage } from './NotFoundPage';
-
-const MAX_IMAGES = 20;
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
-type UploadState = {
-  key: number;
-  name: string;
-  state: 'waiting' | 'uploading' | 'done' | 'failed';
-  message: string;
-};
 
 function ImageTile({
   image,
@@ -71,8 +62,11 @@ function ImageTile({
 function ImageManager({ listing }: { listing: Listing }) {
   const queryClient = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
-  const nextKey = useRef(0);
-  const [uploads, setUploads] = useState<UploadState[]>([]);
+  const location = useLocation();
+  // Results of the new-listing form, when some of its images could not be saved.
+  const fromForm = (location.state as { uploads?: UploadResult[] } | null)?.uploads ?? [];
+  const nextKey = useRef(fromForm.length);
+  const [uploads, setUploads] = useState<UploadResult[]>(fromForm);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [actionFailed, setActionFailed] = useState(false);
@@ -97,21 +91,16 @@ function ImageManager({ listing }: { listing: Listing }) {
     let free = MAX_IMAGES - images.length;
     const planned = files.map((file) => {
       const key = nextKey.current++;
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        return { file, upload: { key, name: file.name, state: 'failed', message: text.status.wrongType } as UploadState };
-      }
-      if (file.size > MAX_FILE_BYTES) {
-        return { file, upload: { key, name: file.name, state: 'failed', message: text.status.tooLarge } as UploadState };
-      }
-      if (free <= 0) {
-        return { file, upload: { key, name: file.name, state: 'failed', message: text.status.limit } as UploadState };
+      const reason = refuseReason(file, free);
+      if (reason) {
+        return { file, upload: { key, name: file.name, state: 'failed', message: reason } as UploadResult };
       }
       free--;
-      return { file, upload: { key, name: file.name, state: 'waiting', message: text.status.waiting } as UploadState };
+      return { file, upload: { key, name: file.name, state: 'waiting', message: text.status.waiting } as UploadResult };
     });
     setUploads(planned.map((item) => item.upload));
 
-    const update = (key: number, state: UploadState['state'], message: string) => {
+    const update = (key: number, state: UploadResult['state'], message: string) => {
       setUploads((current) => current.map((item) => (item.key === key ? { ...item, state, message } : item)));
     };
 
@@ -185,28 +174,25 @@ function ImageManager({ listing }: { listing: Listing }) {
         </Link>
       </div>
 
+      {fromForm.length > 0 ? (
+        <div className="mt-6">
+          <Alert kind="error">{text.partlySaved}</Alert>
+        </div>
+      ) : null}
+
       <div className="mt-6 rounded-xl border border-line bg-surface p-5">
         {images.length >= MAX_IMAGES ? (
           <Alert kind="error">{text.limitReached}</Alert>
         ) : (
           <>
-            <input ref={input} data-testid="image-input" type="file" accept={ACCEPTED_TYPES.join(',')} multiple onChange={addFiles} disabled={busy} className="sr-only" />
+            <input ref={input} data-testid="image-input" type="file" accept={ACCEPTED_IMAGE_TYPES.join(',')} multiple onChange={addFiles} disabled={busy} className="sr-only" />
             <Button disabled={busy} onClick={() => input.current?.click()}>
               {text.add}
             </Button>
             <p className="mt-2 text-sm text-muted">{text.hint}</p>
           </>
         )}
-        {uploads.length > 0 ? (
-          <ul className="mt-4 space-y-2">
-            {uploads.map((upload) => (
-              <li key={upload.key} data-testid="upload-row" data-state={upload.state} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-line pt-2 text-sm">
-                <span className="min-w-0 font-medium break-all">{upload.name}</span>
-                <span className={upload.state === 'failed' ? 'text-danger' : upload.state === 'done' ? 'text-success' : 'text-muted'}>{upload.message}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        <UploadRows uploads={uploads} />
       </div>
 
       {actionFailed ? (

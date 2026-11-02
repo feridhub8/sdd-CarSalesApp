@@ -84,11 +84,15 @@ A signed-in person SHALL stay signed in across reloads and open tabs, and an exp
 - **THEN** the sign-in page appears, and after signing in they return to that page
 
 ### Requirement: Own listings
-A signed-in person SHALL list their own listings, create and edit one with a form, and delete one after confirming. Models offered MUST belong to the chosen brand. Rejected fields MUST appear beside their fields, and values typed so far MUST stay. Edit and delete MUST appear only on the person's own listings.
+A signed-in person SHALL list their own listings, create and edit one with a form, and delete one after confirming. Models offered MUST belong to the chosen brand. Rejected fields MUST appear beside their fields, and values typed so far MUST stay. Edit and delete MUST appear only on the person's own listings. The site MUST NOT create a listing without at least one image chosen in the form.
 
 #### Scenario: Create a listing
-- **WHEN** a person fills the form with valid values, including a brand, one of its models, and a city
-- **THEN** the listing is created and its image management page appears
+- **WHEN** a person fills the form with valid values, including a brand, one of its models, a city, and at least one image
+- **THEN** the listing is created with its images and its page appears
+
+#### Scenario: No image chosen
+- **WHEN** a person submits the form without choosing an image
+- **THEN** a message asks for at least one image and no listing is created
 
 #### Scenario: Models follow the brand
 - **WHEN** a person changes the brand
@@ -111,7 +115,23 @@ A signed-in person SHALL list their own listings, create and edit one with a for
 - **THEN** no edit or delete controls appear
 
 ### Requirement: Listing images
-The owner SHALL add several images at once, change their order, choose the cover, and delete an image after confirming. Each file MUST show its own result. Files that are not JPEG, PNG, or WebP or are over 10 MB MUST be refused before sending, and the site MUST show when the limit of 20 images is reached.
+The owner SHALL add several images at once, change their order, choose the cover, and delete an image after confirming, both while creating a listing and later. Each file MUST show its own result. Files that are not JPEG, PNG, or WebP or are over 10 MB MUST be refused before sending, and the site MUST show when the limit of 20 images is reached.
+
+#### Scenario: Choose images in the form
+- **WHEN** a person creating a listing chooses three images, moves one, and removes another
+- **THEN** previews show the current order with the first as the cover, and saving stores them in that order
+
+#### Scenario: Refused while choosing
+- **WHEN** a person creating a listing chooses a PDF or an 11 MB image
+- **THEN** a message names the file and it is not added to the previews
+
+#### Scenario: An image fails while saving
+- **WHEN** the listing is created but the server rejects one of its images
+- **THEN** the image management page appears with the error and the file name, the other images are stored, and no second listing is created
+
+#### Scenario: The listing fails while saving
+- **WHEN** creating the listing fails because a service is unavailable
+- **THEN** a message appears and the form keeps its values and chosen images
 
 #### Scenario: Several files
 - **WHEN** the owner selects three valid images

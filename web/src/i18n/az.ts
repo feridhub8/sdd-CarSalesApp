@@ -220,6 +220,13 @@ export const az = {
   images: {
     title: 'Elanın şəkilləri',
     add: 'Şəkil əlavə et',
+    pickerTitle: 'Şəkillər',
+    pick: 'Şəkil seç',
+    pickerFull: 'Elanda ən çox 20 şəkil ola bilər.',
+    required: 'Ən azı bir şəkil seçin.',
+    removePicked: 'Çıxar',
+    saving: 'Elan saxlanılır...',
+    partlySaved: 'Elan yaradıldı, amma bəzi şəkillər saxlanılmadı. Aşağıda yenidən əlavə edə bilərsiniz.',
     hint: 'JPEG, PNG və ya WebP, hər biri ən çox 10 MB. Elanda ən çox 20 şəkil ola bilər.',
     empty: 'Hələ şəkil yoxdur.',
     cover: 'Əsas şəkil',
