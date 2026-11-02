@@ -5,13 +5,13 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 ## 1. MinIO
 
 - [x] 1.1 Add `infrastructure/minio/` (`docker-compose.yml` with `minio`, healthcheck, `minio_data`, ports `127.0.0.1:9000` and `127.0.0.1:9001`, and a one-shot `minio-setup`; `.env.example`; `setup/` with the script and policies from design §4) and include it in `infrastructure/docker-compose.yml`; generate the values in `infrastructure/minio/.env` without printing them; verify `up` creates both buckets, `minio-setup` succeeds when run twice, and `git status` does not show `.env`
-- [ ] 1.2 Verify on the real setup: anonymous `GET` of a test object works, anonymous list, `PUT`, and `DELETE` are refused, the dev key cannot touch `listing-images`, and port `9000` is bound to `127.0.0.1` only; remove the test object
-- [ ] 1.3 Update `infrastructure/README.md` (tool table, one-shot services, `.env` values, the new Vault lines, the steps for an existing setup) and `openspec/config.yaml` (MinIO and why the fork); verify the documented commands work as written
+- [x] 1.2 Verify on the real setup: anonymous `GET` of a test object works, anonymous list, `PUT`, and `DELETE` are refused, the dev key cannot touch `listing-images`, and port `9000` is bound to `127.0.0.1` only; remove the test object
+- [x] 1.3 Update `infrastructure/README.md` (tool table, one-shot services, `.env` values, the new Vault lines, the steps for an existing setup) and `openspec/config.yaml` (MinIO and why the fork); verify the documented commands work as written
 
 ## 2. Storage access
 
-- [ ] 2.1 Add `AWSSDK.S3`, `StorageOptions`, `IFileRepository`/`FileS3Repository` (upload with `Content-Type` and `Cache-Control`, delete, public path), `StorageExtensions.InitStorage`, `StorageUnavailableException` (503 in `GlobalExceptionHandler`), the 413 handling from design §8, and `Storage` in `appsettings*.json`; verify the build has no warnings and a temporary call writes, reads, and deletes a file in `listing-images-dev`, then remove the call
-- [ ] 2.2 Add `Storage:AccessKey` and `Storage:SecretKey` to the three Vault paths with `vault kv patch` after the user signs in, then revoke the token; verify existing values remain and the service starts in Local
+- [x] 2.1 Add `AWSSDK.S3`, `StorageOptions`, `IFileRepository`/`FileS3Repository` (upload with `Content-Type` and `Cache-Control`, delete, public path), `StorageExtensions.InitStorage`, `StorageUnavailableException` (503 in `GlobalExceptionHandler`), the 413 handling from design §8, and `Storage` in `appsettings*.json`; verify the build has no warnings and a temporary call writes, reads, and deletes a file in `listing-images-dev`, then remove the call
+- [x] 2.2 Add `Storage:AccessKey` and `Storage:SecretKey` to the three Vault paths with `vault kv patch` after the user signs in, then revoke the token; verify existing values remain and the service starts in Local
 
 ## 3. Data
 

@@ -69,6 +69,26 @@ public sealed class GlobalExceptionHandler
                 Detail = exception.Message
             });
         }
+        catch (StorageUnavailableException exception)
+        {
+            this.logger.LogError(exception, "File storage failed for {Method} {Path}", context.Request.Method, context.Request.Path);
+
+            await WriteProblemAsync(context, new ProblemDetails
+            {
+                Status = StatusCodes.Status503ServiceUnavailable,
+                Title = "Service Unavailable",
+                Detail = exception.Message
+            });
+        }
+        catch (BadHttpRequestException exception)
+        {
+            // Kestrel's own request errors, such as a body over its size limit (413).
+            await WriteProblemAsync(context, new ProblemDetails
+            {
+                Status = exception.StatusCode,
+                Title = exception.Message
+            });
+        }
         catch (Exception exception)
         {
             this.logger.LogError(exception, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

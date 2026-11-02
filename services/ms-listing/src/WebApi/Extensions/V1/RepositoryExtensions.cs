@@ -23,5 +23,8 @@ public static class RepositoryExtensions
 
         // Stateless and called from token validation on every authorized request.
         services.AddSingleton<ITokenRepository, TokenKeycloakRepository>();
+
+        // Stateless, over the singleton S3 client.
+        services.AddSingleton<IFileRepository, FileS3Repository>();
     }
 }

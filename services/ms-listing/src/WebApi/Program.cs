@@ -7,6 +7,7 @@ await builder.InitVaultAsync();
 
 builder.Services.InitLibraries();
 builder.Services.InitDatabase(builder.Configuration);
+builder.Services.InitStorage(builder.Configuration);
 builder.Services.InitRepositories();
 builder.Services.InitServices();
 builder.Services.InitApiVersioning();
