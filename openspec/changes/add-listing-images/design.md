@@ -119,7 +119,7 @@ Follows the global controller rule, not the `/Listing/{id}/Images` shape sketche
 
 There are no `Restore` or `WithDeleted` actions, since deletes are final. Images are read through listing responses.
 
-Limits: `file.Length` is checked by the validator, giving 400 up to Kestrel's default 30 MB body limit. Beyond that Kestrel responds with 413; `GlobalExceptionHandler` must not turn that into 500.
+Limits: `file.Length` is checked by the validator, giving 400 naming `file` up to Kestrel's default 30 MB body limit. Beyond that the request is refused before the file is examined: model binding answers a multipart body with 400 on an empty key, and `GlobalExceptionHandler` answers other bodies with Kestrel's 413 instead of 500.
 
 Naming: `IFileRepository` and `FileS3Repository` in `Data/Shared/Repositories/V1`, registered in `RepositoryExtensions` (not `IFileStorage`, to follow the repository naming rule). `StorageExtensions.InitStorage` registers the options and the S3 client. `IImageProcessingService` and `IListingImageService` are registered in `ServiceExtensions`. `StorageUnavailableException` maps to 503.
 

@@ -41,6 +41,14 @@ public sealed class ListingEfCoreRepository : IListingRepository
         return this.Query(withDeleted).FirstOrDefaultAsync(listing => listing.Id == id, ct);
     }
 
+    public Task<Guid?> GetOwnerIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return this.context.Listings
+            .Where(listing => listing.Id == id)
+            .Select(listing => (Guid?)listing.OwnerId)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task AddAsync(Entities.V1.Listing listing, CancellationToken ct = default)
     {
         this.context.Listings.Add(listing);

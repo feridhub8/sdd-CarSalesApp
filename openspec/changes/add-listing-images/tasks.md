@@ -19,10 +19,10 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 4. Image API
 
-- [ ] 4.1 Add `SkiaSharp` with its Linux assets and `IImageProcessingService`/`ImageProcessingService` (design §5, with the semaphore); verify with sample files for each orientation, format, and size that output is upright, WebP, correctly sized, and free of the GPS marker
-- [ ] 4.2 Add the `ListingImage` feature (DTOs, commands, validators, mapping, `IListingImageRepository`/`ListingImageEfCoreRepository` with the row lock, `IListingImageService`/`ListingImageService` with the flows from design §7, handlers, `ListingImageController`) and register them in `RepositoryExtensions` and `ServiceExtensions`; verify the build and that Swagger shows the three actions with file upload
-- [ ] 4.3 Verify in Local every scenario of `specs/listing-images` except those needing the gateway: upload and its rules, the limit with parallel uploads, processed versions, order, delete with renumbering, a deleted listing's images, and 503 with MinIO stopped, including that a failed upload leaves no files; remove test data and users afterwards
-- [ ] 4.4 Update `services/ms-listing/README.md` (image endpoints, limits, what is kept and what is not, relative URLs, the delete exception, `Storage` settings, a curl upload example); verify the documented commands work as written
+- [x] 4.1 Add `SkiaSharp` with its Linux assets and `IImageProcessingService`/`ImageProcessingService` (design §5, with the semaphore); verify with sample files for each orientation, format, and size that output is upright, WebP, correctly sized, and free of the GPS marker
+- [x] 4.2 Add the `ListingImage` feature (DTOs, commands, validators, mapping, `IListingImageRepository`/`ListingImageEfCoreRepository` with the row lock, `IListingImageService`/`ListingImageService` with the flows from design §7, handlers, `ListingImageController`) and register them in `RepositoryExtensions` and `ServiceExtensions`; verify the build and that Swagger shows the three actions with file upload
+- [x] 4.3 Verify in Local every scenario of `specs/listing-images` except those needing the gateway: upload and its rules, the limit with parallel uploads, processed versions, order, delete with renumbering, a deleted listing's images, and 503 with MinIO stopped, including that a failed upload leaves no files; remove test data and users afterwards
+- [x] 4.4 Update `services/ms-listing/README.md` (image endpoints, limits, what is kept and what is not, relative URLs, the delete exception, `Storage` settings, a curl upload example); verify the documented commands work as written
 
 ## 5. Listing responses
 
@@ -32,7 +32,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 ## 6. Gateway and Docker
 
 - [ ] 6.1 Add the two routes and the `minio` cluster to the gateway settings and `api-gateway/README.md` (design §10); verify in Local through `5080`: upload, reading a file, `PUT` and `DELETE` give 404, and the other environment's path gives 404
-- [ ] 6.2 Verify in Development (`6080`) and then Production (`7080`): upload with an image in its own bucket, reading files, order, delete, an 11 MB file (400), a body over 30 MB (413), MinIO stopped (502, 503, or 504 within 5 seconds on files, 503 on upload, listing reads still 200), and `--scale ms-listing=2` with parallel uploads at the limit; remove test data and containers afterwards
+- [ ] 6.2 Verify in Development (`6080`) and then Production (`7080`): upload with an image in its own bucket, reading files, order, delete, an 11 MB file (400), a body over 30 MB (400 or 413), MinIO stopped (502, 503, or 504 within 5 seconds on files, 503 on upload, listing reads still 200), and `--scale ms-listing=2` with parallel uploads at the limit; remove test data and containers afterwards
 - [ ] 6.3 Run `graphify update .`; verify `git status` shows no secrets or `.env` files and the root `README.md` still matches the running stack
 
 ## Workflow follow-up

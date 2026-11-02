@@ -49,6 +49,10 @@ An upload MUST be a non-empty JPEG, PNG, or WebP file of at most 10 MB and 50 me
 - **WHEN** the owner sends an upload with no file or an empty file
 - **THEN** the system responds with 400 Bad Request naming `file`
 
+#### Scenario: Request body over 30 MB
+- **WHEN** a client sends a request body over 30 MB
+- **THEN** the system refuses it with 400 Bad Request or 413 Content Too Large before examining the file, and nothing is stored
+
 ### Requirement: Image limit per listing
 A listing MUST have at most 20 images, also when uploads arrive at the same time. An upload over the limit MUST give 409 Conflict, and nothing is stored. A listing MAY have no images.
 

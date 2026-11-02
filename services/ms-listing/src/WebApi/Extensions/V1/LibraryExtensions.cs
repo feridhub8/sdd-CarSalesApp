@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FluentValidation;
 using Mapster;
+using MapsterMapper;
 
 namespace WebApi.Extensions.V1;
 
@@ -19,6 +20,9 @@ public static class LibraryExtensions
 
         TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
         TypeAdapterConfig.GlobalSettings.Compile();
-        services.AddMapster();
+
+        // ServiceMapper, not AddMapster's mapper: mappings that build file URLs resolve services through MapContext.
+        services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+        services.AddScoped<IMapper, ServiceMapper>();
     }
 }

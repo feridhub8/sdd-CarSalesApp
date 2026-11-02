@@ -16,6 +16,7 @@ Listing service: car listings and the catalog they refer to (brands, models, cit
 - On a new machine, the one-time setup from the infrastructure README:
   - `LISTING_DB_PASSWORD` / `LISTING_DB_PASSWORD_DEV` in `infrastructure/postgres/.env`.
   - `MS_LISTING_CLIENT_SECRET` / `MS_LISTING_CLIENT_SECRET_DEV` in `infrastructure/keycloak/.env`.
+  - `LISTING_STORAGE_SECRET_KEY` / `LISTING_STORAGE_SECRET_KEY_DEV` in `infrastructure/minio/.env`.
   - The `ms-listing` lines of the Vault setup.
 - `services/ms-listing/.env` with the Vault AppRole credentials (copy `.env.example`):
 
@@ -24,7 +25,9 @@ Listing service: car listings and the catalog they refer to (brands, models, cit
   VAULT_SECRET_ID=...
   ```
 
-At startup ms-listing signs in to Vault and reads its connection string (`ConnectionStrings:Default`) and its Keycloak client secret. Nothing about the database is in `appsettings*.json`. Each environment has its own Vault path: `ms-listingLocal`, `ms-listingDev`, `ms-listing`.
+At startup ms-listing signs in to Vault and reads its connection string (`ConnectionStrings:Default`), its Keycloak client secret, and its file storage keys (`Storage:AccessKey`, `Storage:SecretKey`). Nothing about the database is in `appsettings*.json`. Each environment has its own Vault path: `ms-listingLocal`, `ms-listingDev`, `ms-listing`.
+
+Image files are in MinIO. `Storage:Endpoint` and `Storage:Bucket` are in `appsettings*.json`: `listing-images` in Production, `listing-images-dev` in Development and Local.
 
 ## Database and migrations
 
@@ -34,7 +37,7 @@ At startup ms-listing signs in to Vault and reads its connection string (`Connec
 | Development | `listingDev` | `carsalesDev` | `ms-listingDev` |
 | Production | `listing` | `carsales` | `ms-listing` |
 
-Tables use `snake_case` names. Every entity has `id` (UUID v7), `created_at`, `updated_at`, `is_deleted`, and `deleted_at`. Deletes are soft: rows stay and are hidden from normal reads.
+Tables use `snake_case` names. Every entity has `id` (UUID v7), `created_at`, `updated_at`, `is_deleted`, and `deleted_at`. Deletes are soft: rows stay and are hidden from normal reads. The exception is `listing_images`: images are public, so deleting one removes its row and files for good.
 
 Names compare ignoring letter case (a nondeterministic collation). `name = 'bmw'` finds `BMW`, but PostgreSQL does not allow `LIKE` on these columns; use `name collate "C" ilike 'b%'` in hand-written SQL.
 
@@ -145,6 +148,24 @@ Enums are sent and returned as their names; numbers and unknown names give `400`
 
 The response has every field plus `id`, `ownerId`, `brandId`, `brandName`, `modelName`, `cityName`, `createdAt`, and `updatedAt`.
 
+## Listing image endpoints
+
+All under `api/v1/ListingImage`. Images are read through listing responses.
+
+| Action | Route | Who | Success | Errors |
+|---|---|---|---|---|
+| Upload | `POST Create/{listingId}` (multipart, field `file`) | owner | `201` image | `400`, `401`, `403`, `404`, `409` (20 images), `503` (storage down) |
+| Order | `PUT Reorder/{listingId}` (`imageIds`) | owner | `200` images in the new order | `400`, `401`, `403`, `404` |
+| Delete | `DELETE Delete/{id}` | owner or admin | `204` | `401`, `403`, `404` |
+
+An image is `{ id, url, thumbnailUrl, position }`.
+
+- **Files:** JPEG, PNG, or WebP, decided from the content. At most 10 MB and 50 megapixels. One file per request. Each broken rule gives `400` naming `file`. The server refuses any request body over 30 MB before looking at it.
+- **What is kept:** two WebP versions, `url` at most 1600 pixels and `thumbnailUrl` at most 400 pixels on the long side, turned upright and never enlarged. The original and its metadata, including any GPS location, are not kept.
+- **Order:** a new image goes last. `imageIds` must hold every image of the listing exactly once, otherwise `400`. The image at position 0 is the cover.
+- **Delete:** final, with no restore. The other images close the gap. Deleting a listing leaves its images in place so that a restore brings them back; anyone with an old file URL can still open them meanwhile.
+- **URLs:** relative to [`api-gateway`](../../api-gateway/README.md), for example `/listing-images-dev/<id>/large.webp`, so a client adds the gateway address when it is not on the same origin. Anyone can read a file by its URL; nobody can list the files. Browsers may keep a file for a day.
+
 ## Tokens
 
 Admin actions need an access token from `ms-auth` for a user with the `admin` realm role. The role is given in the Keycloak console; see "Admin role" in the infrastructure README. Sign in again after the role is given, because older tokens do not carry it. A signed-out token is rejected at once (`401`).
@@ -176,6 +197,12 @@ curl -s -X POST $API/Listing/Create -H "Authorization: Bearer $USER_TOKEN" -H "C
 
 curl -s "$API/Listing?page=1&pageSize=20"
 curl -s "$API/Listing/Mine" -H "Authorization: Bearer $USER_TOKEN"
+
+# Images: only the listing's owner uploads and orders them
+curl -s -X POST $API/ListingImage/Create/<listing id> -H "Authorization: Bearer $USER_TOKEN" -F "file=@photo.jpg"
+curl -s -X PUT $API/ListingImage/Reorder/<listing id> -H "Authorization: Bearer $USER_TOKEN" -H "Content-Type: application/json" \
+  -d '{"imageIds":["<image id>","<image id>"]}'
+curl -s -X DELETE $API/ListingImage/Delete/<image id> -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 ## Docker

@@ -8,6 +8,9 @@ public interface IListingRepository
 
     Task<Entities.V1.Listing?> GetByIdAsync(Guid id, bool withDeleted, CancellationToken ct = default);
 
+    // The owner of a non-deleted listing, without loading or tracking the listing.
+    Task<Guid?> GetOwnerIdAsync(Guid id, CancellationToken ct = default);
+
     Task AddAsync(Entities.V1.Listing listing, CancellationToken ct = default);
 
     Task SaveChangesAsync(CancellationToken ct = default);
