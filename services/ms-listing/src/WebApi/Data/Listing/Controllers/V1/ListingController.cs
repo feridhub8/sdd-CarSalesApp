@@ -25,12 +25,9 @@ public sealed class ListingController : ControllerBase
     [HttpGet]
     [ProducesResponseType<PagedResponse<GetListingOkResponseDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResponse<GetListingOkResponseDto>>> GetAll(
-        CancellationToken ct,
-        [FromQuery] int page = PagingRuleExtensions.DefaultPage,
-        [FromQuery] int pageSize = PagingRuleExtensions.DefaultPageSize)
+    public async Task<ActionResult<PagedResponse<GetListingOkResponseDto>>> GetAll([FromQuery] SearchListingsDto search, CancellationToken ct)
     {
-        return await this.mediator.Send(new GetAllListingsQuery(page, pageSize), ct);
+        return await this.mediator.Send(new GetAllListingsQuery(search), ct);
     }
 
     [HttpGet("{id:guid}")]

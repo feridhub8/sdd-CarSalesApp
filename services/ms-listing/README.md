@@ -109,7 +109,7 @@ All under `api/v1/Listing`. A listing belongs to the user who created it (the to
 
 | Action | Route | Who | Success | Errors |
 |---|---|---|---|---|
-| List | `GET ?page=&pageSize=` | anyone | `200` page of non-deleted listings, newest first | `400` paging |
+| List | `GET` with the [search parameters](#searching-listings) | anyone | `200` page of matching non-deleted listings, newest first by default | `400` naming the parameter |
 | By id | `GET {id}` | anyone | `200` | `404` missing or deleted |
 | Own list | `GET Mine?page=&pageSize=` | signed in | `200` page of the caller's listings | `400`, `401` |
 | List with deleted | `GET WithDeleted?page=&pageSize=` | admin | `200` page with `isDeleted`, `deletedAt` | `400`, `401`, `403` |
@@ -120,7 +120,7 @@ All under `api/v1/Listing`. A listing belongs to the user who created it (the to
 | Restore | `PATCH Restore/{id}` | admin | `204` | `401`, `403`, `404`, `409` |
 
 - **Ownership:** the owner comes from the access token; an `ownerId` in the body is ignored. Only the owner can update a listing (an admin gets `403`); the owner or an admin can delete it; only an admin can restore it. A missing or deleted listing gives `404` before any ownership check.
-- **Paging:** `page` 1–500 (default 1), `pageSize` 1–100 (default 20). The response is `{ items, page, pageSize, totalCount }`, newest first.
+- **Paging:** `page` 1–500 (default 1), `pageSize` 1–100 (default 20). The response is `{ items, page, pageSize, totalCount }`, newest first unless the public list is given another `sort`.
 - **Restore** gives `409` when the listing is not deleted or when its model or city is deleted.
 
 Body (create and update):
@@ -149,6 +149,44 @@ Enums are sent and returned as their names; numbers and unknown names give `400`
 The response has every field plus `id`, `ownerId`, `brandId`, `brandName`, `modelName`, `cityName`, `createdAt`, and `updatedAt`.
 
 Every listing also has `coverImageUrl`, the first image's `thumbnailUrl`, or `null` without images. A single listing also has `images`, in order and empty without images; lists leave `images` out. See [Listing image endpoints](#listing-image-endpoints).
+
+## Searching listings
+
+`GET api/v1/Listing` takes these optional query parameters. Different parameters combine with AND. Without any of them, the list is every non-deleted listing, newest first. `Mine` and `WithDeleted` take only `page` and `pageSize`.
+
+| Parameter | Meaning |
+|---|---|
+| `brandId`, `modelId`, `cityId` | An id; one that matches nothing gives an empty page, not an error |
+| `yearFrom`, `yearTo` | Inclusive range |
+| `mileageFrom`, `mileageTo` | Inclusive range in kilometres |
+| `engineFrom`, `engineTo` | Inclusive range in litres; electric cars have no engine volume, so either one leaves them out |
+| `priceFrom`, `priceTo` | Inclusive range, at most 1,000,000,000,000, in `priceCurrency` |
+| `priceCurrency` | `AZN` (default), `USD`, or `EUR` |
+| `bodyType`, `fuelType`, `transmission`, `drivetrain`, `color`, `market` | Repeatable, at most 20 values each; matches any of them. Names as in the listing body |
+| `isCredit`, `isBarter` | `true` keeps only listings offered that way |
+| `notPainted`, `notDamaged` | `true` keeps only listings that are not painted or not damaged |
+| `hasImages` | `true` keeps only listings with an image |
+| `sort` | `Newest` (default), `PriceAsc`, `PriceDesc`, `YearDesc`, or `MileageAsc` |
+
+A flag that is `false` or missing does not filter. A negative value, a from value above its to value, an unknown name, or a number in place of a name gives `400` naming the parameter.
+
+```bash
+curl 'http://localhost:5002/api/v1/Listing?bodyType=Sedan&bodyType=Suv&fuelType=Diesel&priceTo=15000&priceCurrency=USD&notDamaged=true&sort=PriceAsc'
+```
+
+**Comparing across units:** responses always show what the seller wrote. For filters and sorts only, prices are converted to AZN at the current rates, and miles to kilometres at 1.609. So a 15,000 USD car matches `priceTo=30000` at a rate of 1.7, and may stop matching after the rate changes.
+
+**Exchange rates** come from the Central Bank of Azerbaijan's daily file, `https://www.cbar.az/currencies/DD.MM.YYYY.xml`, where asking for today gives the latest working day. A background service fetches it at startup and every 6 hours, and stores USD and EUR in the `exchange_rates` table; new rates apply to the next search without a restart. `--migrate` does not fetch.
+
+An answer counts only if it is valid XML without a DTD, has both currencies quoted per one unit, and each rate is within 0.1 to 100. Otherwise, or if the bank cannot be reached within 15 seconds, nothing changes and a warning `Could not refresh exchange rates` is logged. Searches then keep using the stored rates, or `ExchangeRates:Fallback` in `appsettings.json` while the table has no rate. See the current rates with:
+
+```bash
+docker exec carsales-postgres-1 psql -U postgres -d listingDev -c 'select * from exchange_rates;'
+```
+
+`ExchangeRates:SourceUrl` and `ExchangeRates:RefreshHours` are also in `appsettings.json`. The server needs outgoing access to `www.cbar.az`, or it stays on the last rates.
+
+No indexes were added for searching: with 200,000 listings the slowest search took about 70 ms. Look again at about a million.
 
 ## Listing image endpoints
 

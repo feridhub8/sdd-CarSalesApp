@@ -1,3 +1,4 @@
+using WebApi.Data.Listing.Models.V1;
 using WebApi.Data.Shared.Models.V1;
 
 namespace WebApi.Data.Listing.Services.V1.Base;
@@ -5,6 +6,8 @@ namespace WebApi.Data.Listing.Services.V1.Base;
 public interface IListingService
 {
     Task<PagedResponse<Entities.V1.Listing>> GetPageAsync(int page, int pageSize, bool withDeleted, CancellationToken ct = default);
+
+    Task<PagedResponse<Entities.V1.Listing>> SearchAsync(ListingSearch search, CancellationToken ct = default);
 
     Task<PagedResponse<Entities.V1.Listing>> GetMineAsync(int page, int pageSize, CancellationToken ct = default);
 

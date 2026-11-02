@@ -44,7 +44,7 @@ Measured on a throwaway PostgreSQL 17 with the real schema and 200,000 listings 
 | Year, descending | 46 ms | 37 ms |
 | Has images | 0.3 ms | 63 ms |
 
-The slowest search costs about 90 ms in total. Each index slows writes and can serve only some filter combinations, so none is added. This was the raw SQL shape, on warm caches; task 2.2 measures the real EF queries. The time grows about in step with the table, so these numbers are a reason to look again at about a million listings.
+The slowest search costs about 90 ms in total. Each index slows writes and can serve only some filter combinations, so none is added. This was the raw SQL shape, on warm caches. Task 2.2 measured the real EF queries on the same data: a whole search, count and page together, took 4 to 69 ms, with the slowest being sorts across all listings at about 60 ms, so there is no large difference. The time grows about in step with the table, so these numbers are a reason to look again at about a million listings.
 
 ### 3. Conversion happens in the query, with no stored column
 
@@ -81,7 +81,7 @@ Rules for a usable answer: parses as XML with DTD processing prohibited, has bot
 
 Writes are one upsert per currency (`INSERT ... ON CONFLICT DO UPDATE`), so replicas fetching at once cannot conflict.
 
-Fallback in `appsettings.json`: `ExchangeRates:Fallback` with USD 1.7 and EUR 1.9, used only when the table has no row. The table is read on each search: two rows by primary key, cheap enough not to need a cache.
+Fallback in `appsettings.json`: `ExchangeRates:Fallback` with `Usd` 1.7 and `Eur` 1.9, used only when the table has no row. The table is read on each search: two rows by primary key, cheap enough not to need a cache.
 
 Names: `IExchangeRateRepository` and `ExchangeRateEfCoreRepository` for the table; `IExchangeRateSourceRepository` and `ExchangeRateCbarRepository` for the bank; `IExchangeRateService` and `ExchangeRateService`, all in a new `ExchangeRate` feature. `ExchangeRateExtensions.InitExchangeRates` registers the options, the HTTP client, and the hosted service. The source sits behind an interface so a different one can replace it.
 
@@ -89,10 +89,11 @@ Names: `IExchangeRateRepository` and `ExchangeRateEfCoreRepository` for the tabl
 
 `GET Listing` gets a `[FromQuery] SearchListingsDto`, wrapped by `GetAllListingsQuery`. `GetPageAsync` stays for `Mine` and `WithDeleted`, and a new `SearchAsync` serves the public list, so those two cannot gain filters by accident.
 
-- **Fixed values are bound as strings** and checked by the validator with `Enum.TryParse` plus a rule that rejects digits, so `fuelType=1` gives 400 like it does in JSON.
+- **Fixed values are bound as strings** and checked by the validator against the enum's names, so `fuelType=1` gives 400 like it does in JSON. `Enum.TryParse` is not used: it would also accept digits and `Sedan,Suv`.
 - **Repeatable values** use `List<string>`, with at most 20 values each, so a long query string cannot build a huge `IN`.
 - **Sort tie-break:** every sort ends with `id`, so pages stay stable. Newest keeps `(created_at, id)` to use its index.
-- **Unchanged behavior:** no filter and no sort produce the same query as today, plus reading the rates only when a price is involved.
+- **Unchanged behavior:** no filter and no sort produce the same query as today, plus the small read of the rates (§5) that every search does.
+- **Price bounds are capped** at 1,000,000,000,000 so that converting one cannot overflow.
 
 ### 7. Website
 

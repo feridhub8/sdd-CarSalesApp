@@ -4,4 +4,4 @@ using WebApi.Data.Shared.Models.V1;
 
 namespace WebApi.Data.Listing.Queries.V1;
 
-public sealed record GetAllListingsQuery(int Page, int PageSize) : IRequest<PagedResponse<GetListingOkResponseDto>>;
+public sealed record GetAllListingsQuery(SearchListingsDto Search) : IRequest<PagedResponse<GetListingOkResponseDto>>;

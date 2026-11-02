@@ -9,9 +9,9 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. Search API
 
-- [ ] 2.1 Add `SearchListingsDto`, validation, `SearchAsync` with filters, conversion, and sorts (design §3, §6); verify the build has no warnings and that `GET Listing` without parameters returns what it did, with `Mine` and `WithDeleted` unchanged
-- [ ] 2.2 Verify every scenario of `specs/listing-search` and the `listings` delta in Local against test data, including exact conversion cases and bounds; rerun the existing listing suite; measure the real EF queries on a throwaway database with 200,000 listings and record any large difference from design §2; remove test data
-- [ ] 2.3 Update `services/ms-listing/README.md` (parameters, conversion, rates and where they come from); verify the documented commands work as written
+- [x] 2.1 Add `SearchListingsDto`, validation, `SearchAsync` with filters, conversion, and sorts (design §3, §6); verify the build has no warnings and that `GET Listing` without parameters returns what it did, with `Mine` and `WithDeleted` unchanged
+- [x] 2.2 Verify every scenario of `specs/listing-search` and the `listings` delta in Local against test data, including exact conversion cases and bounds; rerun the existing listing suite; measure the real EF queries on a throwaway database with 200,000 listings and record any large difference from design §2; remove test data
+- [x] 2.3 Update `services/ms-listing/README.md` (parameters, conversion, rates and where they come from); verify the documented commands work as written
 
 ## 3. Website
 

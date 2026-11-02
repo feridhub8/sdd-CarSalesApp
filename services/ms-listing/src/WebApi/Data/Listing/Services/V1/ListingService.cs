@@ -1,6 +1,8 @@
 using FluentValidation;
 using FluentValidation.Results;
 using WebApi.Data.City.Repositories.V1.Base;
+using WebApi.Data.ExchangeRate.Services.V1.Base;
+using WebApi.Data.Listing.Models.V1;
 using WebApi.Data.Listing.Repositories.V1.Base;
 using WebApi.Data.Listing.Services.V1.Base;
 using WebApi.Data.Model.Repositories.V1.Base;
@@ -16,22 +18,32 @@ public sealed class ListingService : IListingService
     private readonly IModelRepository modelRepository;
     private readonly ICityRepository cityRepository;
     private readonly ICurrentUserService currentUser;
+    private readonly IExchangeRateService exchangeRateService;
 
     public ListingService(
         IListingRepository listingRepository,
         IModelRepository modelRepository,
         ICityRepository cityRepository,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        IExchangeRateService exchangeRateService)
     {
         this.listingRepository = listingRepository;
         this.modelRepository = modelRepository;
         this.cityRepository = cityRepository;
         this.currentUser = currentUser;
+        this.exchangeRateService = exchangeRateService;
     }
 
     public Task<PagedResponse<Entities.V1.Listing>> GetPageAsync(int page, int pageSize, bool withDeleted, CancellationToken ct = default)
     {
         return this.listingRepository.GetPageAsync(ownerId: null, withDeleted, page, pageSize, ct);
+    }
+
+    public async Task<PagedResponse<Entities.V1.Listing>> SearchAsync(ListingSearch search, CancellationToken ct = default)
+    {
+        var rates = await this.exchangeRateService.GetRatesAsync(ct);
+
+        return await this.listingRepository.SearchAsync(search, rates, ct);
     }
 
     public Task<PagedResponse<Entities.V1.Listing>> GetMineAsync(int page, int pageSize, CancellationToken ct = default)
