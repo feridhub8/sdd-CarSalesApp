@@ -16,7 +16,7 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 3. Browsing
 
-- [ ] 3.1 Add the listing grid and listing page with its gallery; verify with Playwright the `Browse listings`, `Read a listing`, `Screen sizes`, `Failures`, and script-in-description scenarios against test data, and read the screenshots at both widths
+- [x] 3.1 Add the listing grid and listing page with its gallery; verify with Playwright the `Browse listings`, `Read a listing`, `Screen sizes`, `Failures`, and script-in-description scenarios against test data, and read the screenshots at both widths
 
 ## 4. Own listings and images
 
@@ -29,7 +29,7 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 6. Whole site in Docker
 
-- [ ] 6.1 Run the full Playwright walk in Development (`6080`) and then Production (`7080`): register, sign in, create a listing, upload, reorder, delete, admin catalog and restore, reload at each step, and the `Language` scenario by searching pages for English; remove test data, users, and containers afterwards
+- [ ] 6.1 Run the full Playwright walk in Development (`6080`) and then Production (`7080`): register, sign in, create a listing, upload, reorder, delete, admin catalog and restore, reload at each step, and the `Language` scenario by searching pages for English, and the `Failures` scenario with `ms-listing` really stopped; remove test data, users, and containers afterwards
 - [ ] 6.2 Run `graphify update .`; verify `git status` shows no `node_modules`, `dist`, secrets, or `.env` files, and the root `README.md` matches the running stack
 
 ## Workflow follow-up

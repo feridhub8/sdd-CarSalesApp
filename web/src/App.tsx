@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router';
 import { RequireAuth } from './auth/RequireAuth';
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
+import { ListingPage } from './pages/ListingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyListingsPage } from './pages/MyListingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -12,6 +13,7 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
+        <Route path="listings/:id" element={<ListingPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route element={<RequireAuth />}>
