@@ -19,7 +19,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 4. Whole system in Docker
 
-- [ ] 4.1 Run all suites in Development and then Production with raised limits from a scratchpad override, then the real default limits against each stack; verify the override is not committed; remove test data and users, leaving the user's own data, and bring Development back up with its default limits; run `graphify update .`; verify `git status` shows no secrets
+- [x] 4.1 Run all suites in Development and then Production with raised limits from a scratchpad override, then the real default limits against each stack; verify the override is not committed; remove test data and users, leaving the user's own data, and bring Development back up with its default limits; run `graphify update .`; verify `git status` shows no secrets
 
 ## Workflow follow-up
 
