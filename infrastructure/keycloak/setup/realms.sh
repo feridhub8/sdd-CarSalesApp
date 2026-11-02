@@ -69,5 +69,8 @@ for realm in carsales carsalesDev; do
       -s 'config."introspection.token.claim"=true'
   fi
 
+  # Keycloak silently drops attributes its user profile does not declare, such as the seller's phone.
+  "$KCADM" update users/profile -r "$realm" --config "$CONFIG" -f /setup/user-profile.json
+
   echo "Realm '$realm' settings applied"
 done

@@ -17,7 +17,9 @@ Three one-shot services run on every start and exit. All are safe to run again a
 - `postgres-setup` creates any missing roles and databases (`postgres/setup/databases.sql`).
 - `keycloak-setup` applies the realm settings the project owns to `carsales` and `carsalesDev` (`keycloak/setup/realms.sh`): username separate from email, login with username or email, unique emails, the password policy (8+ characters with an uppercase letter, a lowercase letter, a digit, and a symbol), and refresh token rotation (each refresh token works once; reusing one ends that login).
   - Realm import only creates missing realms, so this is how existing realms get new settings.
+  - It also applies the user profile (`keycloak/setup/user-profile.json`): Keycloak's default profile plus the optional `phone` attribute, which only admins and `ms-auth` can see or change. Keycloak silently drops attributes the profile does not declare. A required attribute would block sign-in for accounts without it, so `phone` stays optional.
   - These keys are owned by the script: a change made to them in the admin console is undone on the next start.
+  - When upgrading Keycloak, compare `user-profile.json` with the new version's default profile, in case the defaults changed.
   - It signs in as the bootstrap admin from `keycloak/.env`. If that admin is replaced or deleted, the setup fails until the variables point to a working admin.
 
 ## Daily use
