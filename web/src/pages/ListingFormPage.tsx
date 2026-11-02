@@ -13,6 +13,7 @@ import { ImagePicker, type PickedImage } from '../components/ImagePicker';
 import { Loading } from '../components/Loading';
 import { SelectField } from '../components/SelectField';
 import { UploadRows } from '../components/UploadRows';
+import { formatPhone, normalizePhone } from '../format';
 import { az } from '../i18n/az';
 import type { UploadResult } from '../images';
 import { NotAllowedPage } from './NotAllowedPage';
@@ -162,6 +163,9 @@ const CURRENCIES = [
 ];
 
 function ListingForm({ listing }: { listing?: Listing }) {
+  const { auth, savePhone } = useAuth();
+  const accountPhone = auth.status === 'signedIn' ? auth.user.phone : null;
+  const [phone, setPhone] = useState(accountPhone ? formatPhone(accountPhone) : '');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [values, setValues] = useState<FormValues>(listing ? fromListing(listing) : blank);
@@ -225,6 +229,10 @@ function ListingForm({ listing }: { listing?: Listing }) {
     if (!listing && pictures.length === 0) {
       found.pictures = az.images.required;
     }
+    const normalizedPhone = normalizePhone(phone);
+    if (!listing && !normalizedPhone) {
+      found.phone = az.phone.invalid;
+    }
     setErrors(found);
     if (Object.keys(found).length > 0) {
       setFormError(az.errors.invalid);
@@ -233,6 +241,21 @@ function ListingForm({ listing }: { listing?: Listing }) {
 
     setBusy(true);
     try {
+      // The number goes first: if it is rejected, no listing is left behind without one.
+      if (!listing && normalizedPhone && normalizedPhone !== accountPhone) {
+        try {
+          await savePhone(normalizedPhone);
+        } catch (failure) {
+          if (failure instanceof ApiError && failure.status === 400) {
+            setErrors({ phone: az.phone.invalid });
+            setFormError(az.errors.invalid);
+          } else {
+            setFormError(az.errors.unavailable);
+          }
+          return;
+        }
+      }
+
       const saved = listing ? await updateListing(listing.id, toFields(values)) : await createListing(toFields(values));
       const results = listing ? [] : await uploadPictures(saved.id);
       if (listing) {
@@ -350,7 +373,12 @@ function ListingForm({ listing }: { listing?: Listing }) {
             </label>
           ))}
         </div>
-        {listing ? null : <ImagePicker pictures={pictures} onChange={setPictures} error={errors.pictures} disabled={busy} />}
+        {listing ? null : (
+          <>
+            <Field label={az.phone.label} type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} error={errors.phone} hint={az.phone.hint} disabled={busy} />
+            <ImagePicker pictures={pictures} onChange={setPictures} error={errors.pictures} disabled={busy} />
+          </>
+        )}
         <UploadRows uploads={uploads} />
         {formError ? <Alert kind="error">{formError}</Alert> : null}
         <Button type="submit" disabled={busy} className="w-full sm:w-auto">

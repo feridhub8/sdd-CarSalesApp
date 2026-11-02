@@ -13,6 +13,8 @@ type AuthContextValue = {
   auth: AuthState;
   signIn: (login: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  // Saves a new number on the account and updates everything that shows it.
+  savePhone: (phone: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -77,7 +79,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear();
   }, [queryClient]);
 
-  return <AuthContext.Provider value={{ auth, signIn, signOut }}>{children}</AuthContext.Provider>;
+  const savePhone = useCallback(async (phone: string) => {
+    const user = await authApi.updatePhone(phone);
+    setAuth((current) => (current.status === 'signedIn' ? { ...current, user } : current));
+    await queryClient.invalidateQueries({ queryKey: ['seller'] });
+  }, [queryClient]);
+
+  return <AuthContext.Provider value={{ auth, signIn, signOut, savePhone }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

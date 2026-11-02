@@ -42,9 +42,9 @@ export function Layout() {
                     {az.nav.admin}
                   </Link>
                 ) : null}
-                <span className="max-w-40 truncate text-muted" data-testid="current-user">
+                <Link to="/profile" className="max-w-40 truncate text-muted hover:text-accent" data-testid="current-user">
                   {auth.user.username}
-                </span>
+                </Link>
                 <button type="button" onClick={handleSignOut} className="font-medium hover:text-accent">
                   {az.nav.signOut}
                 </button>

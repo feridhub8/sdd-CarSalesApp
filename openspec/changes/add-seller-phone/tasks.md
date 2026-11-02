@@ -15,8 +15,8 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 3. Website
 
-- [ ] 3.1 Add the contact block to the listing page (design §8); verify with Playwright the `Seller contact on a listing` scenarios at both widths, including that nothing is requested before pressing, and read the screenshots
-- [ ] 3.2 Add `/profile`, the header link, and the number field in the new-listing form with its saving order; verify with Playwright the `Contact number when publishing` and `Profile page` scenarios; update the existing website suites for the new field
+- [x] 3.1 Add the contact block to the listing page (design §8); verify with Playwright the `Seller contact on a listing` scenarios at both widths, including that nothing is requested before pressing, and read the screenshots
+- [x] 3.2 Add `/profile`, the header link, and the number field in the new-listing form with its saving order; verify with Playwright the `Contact number when publishing` and `Profile page` scenarios; update the existing website suites for the new field
 
 ## 4. Whole system in Docker
 

@@ -6,6 +6,12 @@ export type User = {
   email: string;
   firstName: string;
   lastName: string;
+  phone: string | null;
+};
+
+export type Seller = {
+  firstName: string;
+  phone: string | null;
 };
 
 export type Registration = {
@@ -30,4 +36,12 @@ export function logout() {
 
 export function getMe() {
   return api<User>(`${API}/Auth/Me`);
+}
+
+export function updatePhone(phone: string) {
+  return api<User>(`${API}/Auth/Me/Phone`, { method: 'PUT', body: { phone } });
+}
+
+export function getSeller(id: string) {
+  return api<Seller>(`${API}/Auth/Sellers/${encodeURIComponent(id)}`);
 }

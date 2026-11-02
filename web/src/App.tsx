@@ -10,6 +10,7 @@ import { ListingPage } from './pages/ListingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyListingsPage } from './pages/MyListingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
         <Route path="register" element={<RegisterPage />} />
         <Route element={<RequireAuth />}>
           <Route path="my-listings" element={<MyListingsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="listings/new" element={<ListingFormPage />} />
           <Route path="listings/:id/edit" element={<ListingFormPage />} />
           <Route path="listings/:id/images" element={<ListingImagesPage />} />

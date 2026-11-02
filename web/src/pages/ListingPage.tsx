@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
+import { getSeller } from '../api/auth';
 import { ApiError } from '../api/http';
 import { deleteImage, deleteListing, getListing, type Listing, type ListingImage } from '../api/listings';
 import { useAuth } from '../auth/AuthContext';
@@ -10,7 +11,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ErrorRetry } from '../components/ErrorRetry';
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { Loading } from '../components/Loading';
-import { formatDate, formatEngine, formatMileage, formatPrice, label } from '../format';
+import { formatDate, formatEngine, formatMileage, formatPhone, formatPrice, label } from '../format';
 import { az } from '../i18n/az';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -78,6 +79,55 @@ function Fact({ name, value }: { name: string; value: string | number }) {
     <div className="flex justify-between gap-4 border-b border-line py-2 last:border-b-0">
       <dt className="text-muted">{name}</dt>
       <dd className="text-right font-medium">{value}</dd>
+    </div>
+  );
+}
+
+// Asks ms-auth only when pressed, so viewing a listing never depends on that service.
+function SellerContact({ ownerId }: { ownerId: string }) {
+  const [revealed, setRevealed] = useState(false);
+  const seller = useQuery({ queryKey: ['seller', ownerId], queryFn: () => getSeller(ownerId), enabled: revealed });
+  const text = az.seller;
+
+  if (!revealed) {
+    return (
+      <div className="mt-4">
+        <Button className="w-full" onClick={() => setRevealed(true)}>
+          {text.show}
+        </Button>
+      </div>
+    );
+  }
+  if (seller.isPending) {
+    return <div className="mt-4 text-muted">{az.common.loading}</div>;
+  }
+
+  const unavailable = seller.isError && !(seller.error instanceof ApiError && seller.error.status === 404);
+  if (unavailable) {
+    return (
+      <div className="mt-4 space-y-3">
+        <Alert kind="error">{az.errors.unavailable}</Alert>
+        <Button variant="secondary" className="w-full" onClick={() => seller.refetch()}>
+          {az.common.retry}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="seller-contact" className="mt-4 rounded-lg border border-line p-4">
+      {seller.data?.phone ? (
+        <>
+          <p className="text-sm text-muted">
+            {text.title}: <span className="font-medium break-words text-ink">{seller.data.firstName}</span>
+          </p>
+          <a href={`tel:${seller.data.phone}`} className="mt-1 block text-xl font-bold text-accent hover:text-accent-strong">
+            {formatPhone(seller.data.phone)}
+          </a>
+        </>
+      ) : (
+        <p className="text-muted">{text.none}</p>
+      )}
     </div>
   );
 }
@@ -204,6 +254,7 @@ export function ListingPage() {
               ))}
             </ul>
           ) : null}
+          <SellerContact ownerId={item.ownerId} />
           <dl className="mt-4 text-sm">
             <Fact name={fields.city} value={item.cityName} />
             <Fact name={fields.year} value={item.year} />

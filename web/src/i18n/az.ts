@@ -281,6 +281,24 @@ export const az = {
       gone: 'Bu qeyd artıq mövcud deyil. Siyahı yeniləndi.',
     },
   },
+  seller: {
+    title: 'Satıcı',
+    show: 'Nömrəni göstər',
+    none: 'Əlaqə məlumatı yoxdur.',
+  },
+  phone: {
+    label: 'Əlaqə nömrəsi',
+    hint: 'Hesabınızda saxlanır və bütün elanlarınızda görünür. Məsələn: 050 123 45 67',
+    invalid: 'Azərbaycan nömrəsi daxil edin. Məsələn: 050 123 45 67',
+  },
+  profile: {
+    title: 'Profil',
+    username: 'İstifadəçi adı',
+    email: 'E-poçt',
+    firstName: 'Ad',
+    lastName: 'Soyad',
+    saved: 'Nömrə yadda saxlanıldı.',
+  },
   notAllowed: {
     title: 'İcazə yoxdur',
     text: 'Bu səhifəyə baxmaq üçün icazəniz yoxdur.',
