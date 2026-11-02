@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data.Brand.Entities.V1;
 using WebApi.Data.City.Entities.V1;
+using WebApi.Data.ExchangeRate.Entities.V1;
 using WebApi.Data.Listing.Entities.V1;
 using WebApi.Data.ListingImage.Entities.V1;
 using WebApi.Data.Model.Entities.V1;
@@ -23,6 +24,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Listing> Listings => this.Set<Listing>();
 
     public DbSet<ListingImage> ListingImages => this.Set<ListingImage>();
+
+    public DbSet<ExchangeRate> ExchangeRates => this.Set<ExchangeRate>();
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
     {

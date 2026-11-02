@@ -2,6 +2,8 @@ using WebApi.Data.Brand.Repositories.V1;
 using WebApi.Data.Brand.Repositories.V1.Base;
 using WebApi.Data.City.Repositories.V1;
 using WebApi.Data.City.Repositories.V1.Base;
+using WebApi.Data.ExchangeRate.Repositories.V1;
+using WebApi.Data.ExchangeRate.Repositories.V1.Base;
 using WebApi.Data.Listing.Repositories.V1;
 using WebApi.Data.Listing.Repositories.V1.Base;
 using WebApi.Data.ListingImage.Repositories.V1;
@@ -23,11 +25,15 @@ public static class RepositoryExtensions
         services.AddScoped<ICityRepository, CityEfCoreRepository>();
         services.AddScoped<IListingRepository, ListingEfCoreRepository>();
         services.AddScoped<IListingImageRepository, ListingImageEfCoreRepository>();
+        services.AddScoped<IExchangeRateRepository, ExchangeRateEfCoreRepository>();
 
         // Stateless and called from token validation on every authorized request.
         services.AddSingleton<ITokenRepository, TokenKeycloakRepository>();
 
         // Stateless, over the singleton S3 client.
         services.AddSingleton<IFileRepository, FileS3Repository>();
+
+        // Stateless; creates its HTTP client per call.
+        services.AddSingleton<IExchangeRateSourceRepository, ExchangeRateCbarRepository>();
     }
 }

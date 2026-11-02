@@ -105,6 +105,32 @@ namespace WebApi.Persistence.Migrations
                     b.ToTable("cities", (string)null);
                 });
 
+            modelBuilder.Entity("WebApi.Data.ExchangeRate.Entities.V1.ExchangeRate", b =>
+                {
+                    b.Property<string>("Currency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateOnly>("RateDate")
+                        .HasColumnType("date")
+                        .HasColumnName("rate_date");
+
+                    b.Property<decimal>("RateToAzn")
+                        .HasPrecision(12, 6)
+                        .HasColumnType("numeric(12,6)")
+                        .HasColumnName("rate_to_azn");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Currency")
+                        .HasName("pk_exchange_rates");
+
+                    b.ToTable("exchange_rates", (string)null);
+                });
+
             modelBuilder.Entity("WebApi.Data.Listing.Entities.V1.Listing", b =>
                 {
                     b.Property<Guid>("Id")

@@ -2,6 +2,8 @@ using WebApi.Data.Brand.Services.V1;
 using WebApi.Data.Brand.Services.V1.Base;
 using WebApi.Data.City.Services.V1;
 using WebApi.Data.City.Services.V1.Base;
+using WebApi.Data.ExchangeRate.Services.V1;
+using WebApi.Data.ExchangeRate.Services.V1.Base;
 using WebApi.Data.Listing.Services.V1;
 using WebApi.Data.Listing.Services.V1.Base;
 using WebApi.Data.ListingImage.Services.V1;
@@ -25,6 +27,7 @@ public static class ServiceExtensions
         services.AddScoped<ICityService, CityService>();
         services.AddScoped<IListingService, ListingService>();
         services.AddScoped<IListingImageService, ListingImageService>();
+        services.AddScoped<IExchangeRateService, ExchangeRateService>();
 
         // One instance, so its limit on images processed at a time holds across requests.
         services.AddSingleton<IImageProcessingService, ImageProcessingService>();

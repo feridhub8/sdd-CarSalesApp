@@ -10,6 +10,7 @@ builder.Services.InitDatabase(builder.Configuration);
 builder.Services.InitStorage(builder.Configuration);
 builder.Services.InitRepositories();
 builder.Services.InitServices();
+builder.Services.InitExchangeRates(builder.Configuration);
 builder.Services.InitApiVersioning();
 builder.Services.InitAuthentication(builder.Configuration);
 builder.Services.InitSwagger();
