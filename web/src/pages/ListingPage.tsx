@@ -1,8 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/http';
-import { getListing, type Listing, type ListingImage } from '../api/listings';
+import { deleteListing, getListing, type Listing, type ListingImage } from '../api/listings';
+import { useAuth } from '../auth/AuthContext';
+import { Alert } from '../components/Alert';
+import { Button } from '../components/Button';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ErrorRetry } from '../components/ErrorRetry';
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { Loading } from '../components/Loading';
@@ -49,7 +53,48 @@ function Fact({ name, value }: { name: string; value: string | number }) {
   );
 }
 
+function OwnerControls({ id }: { id: string }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const linkStyle = 'rounded-lg border border-line bg-surface px-4 py-2 text-center font-medium hover:bg-page';
+
+  const remove = async () => {
+    setConfirming(false);
+    setFailed(false);
+    try {
+      await deleteListing(id);
+      queryClient.removeQueries({ queryKey: ['listing', id] });
+      await queryClient.invalidateQueries({ queryKey: ['listings'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      navigate('/my-listings');
+    } catch {
+      setFailed(true);
+    }
+  };
+
+  return (
+    <div className="mt-4 space-y-3">
+      {failed ? <Alert kind="error">{az.errors.unavailable}</Alert> : null}
+      <div className="flex flex-wrap gap-2">
+        <Link to={`/listings/${id}/edit`} className={linkStyle}>
+          {az.listing.edit}
+        </Link>
+        <Link to={`/listings/${id}/images`} className={linkStyle}>
+          {az.listing.manageImages}
+        </Link>
+        <Button variant="danger" onClick={() => setConfirming(true)}>
+          {az.common.delete}
+        </Button>
+      </div>
+      <ConfirmDialog open={confirming} text={az.listing.confirmDelete} onConfirm={remove} onCancel={() => setConfirming(false)} />
+    </div>
+  );
+}
+
 export function ListingPage() {
+  const { auth } = useAuth();
   const { id = '' } = useParams();
   const listing = useQuery({ queryKey: ['listing', id], queryFn: () => getListing(id) });
 
@@ -112,6 +157,7 @@ export function ListingPage() {
             {item.vin ? <Fact name={fields.vin} value={item.vin} /> : null}
             <Fact name={fields.createdAt} value={formatDate(item.createdAt)} />
           </dl>
+          {auth.status === 'signedIn' && auth.user.id === item.ownerId ? <OwnerControls id={item.id} /> : null}
         </div>
       </div>
       {item.description ? (

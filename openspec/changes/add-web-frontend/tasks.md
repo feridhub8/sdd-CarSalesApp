@@ -20,8 +20,8 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 4. Own listings and images
 
-- [ ] 4.1 Add `/my-listings` and the listing form (brand and model lists, electric cars, field errors, delete with confirmation); verify with Playwright the `Own listings` scenarios and the failed-save scenario
-- [ ] 4.2 Add the image page (several files with per-file results, checks before sending, move and cover controls, delete with confirmation, limit); verify with Playwright the `Listing images` scenarios, including the storage-down one, with real JPEG, PNG, and WebP sample files
+- [x] 4.1 Add `/my-listings` and the listing form (brand and model lists, electric cars, field errors, delete with confirmation); verify with Playwright the `Own listings` scenarios and the failed-save scenario
+- [x] 4.2 Add the image page (several files with per-file results, checks before sending, move and cover controls, delete with confirmation, limit); verify with Playwright the `Listing images` scenarios, including the storage-down one, with real JPEG, PNG, and WebP sample files
 
 ## 5. Admin area
 

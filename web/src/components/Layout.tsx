@@ -34,6 +34,9 @@ export function Layout() {
                 <Link to="/my-listings" className="hover:text-accent">
                   {az.nav.myListings}
                 </Link>
+                <Link to="/listings/new" className="rounded-lg bg-accent px-3 py-1.5 text-white hover:bg-accent-strong">
+                  {az.nav.newListing}
+                </Link>
                 <span className="max-w-40 truncate text-muted" data-testid="current-user">
                   {auth.user.username}
                 </span>
