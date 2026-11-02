@@ -11,8 +11,8 @@ Apply one group at a time: stop after each group, report what to open and what s
 
 ## 2. Accounts and session
 
-- [ ] 2.1 Add the API client with the session handling from design §5, and the register, sign-in, and sign-out pages; verify with Playwright the `Accounts` scenarios at both widths and read the screenshots
-- [ ] 2.2 Verify the `Session` scenarios with Playwright: reload, an expired access token, two tabs renewing at once (the login must survive), a protected page, and that no token is in browser storage
+- [x] 2.1 Add the API client with the session handling from design §5, and the register, sign-in, and sign-out pages; verify with Playwright the `Accounts` scenarios at both widths and read the screenshots
+- [x] 2.2 Verify the `Session` scenarios with Playwright: reload, an expired access token, two tabs renewing at once (the login must survive), a protected page, and that no token is in browser storage
 
 ## 3. Browsing
 
