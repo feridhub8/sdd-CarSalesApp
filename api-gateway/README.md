@@ -11,10 +11,14 @@ The single entry point for CarSales clients. A YARP reverse proxy that forwards 
 | `/api/v{version}/Model/**` | `ms-listing` |
 | `/api/v{version}/City/**` | `ms-listing` |
 | `/api/v{version}/Listing/**` | `ms-listing` |
+| `/api/v{version}/ListingImage/**` | `ms-listing` |
+| `/listing-images/**` (Production), `/listing-images-dev/**` (Development, Local) | MinIO, `GET` and `HEAD` only |
+
+The file routes let anyone read an image by its URL without a token. Any other method on them gets `405` from the gateway, and MinIO itself refuses to list the files. Each environment serves only its own path, set in `appsettings.Development.json` and `appsettings.Local.json`.
 
 Anything else gets `404` from the gateway. Paths are not rewritten, so a service is called on the same path the client used (the refresh token cookie's `Path=/api/v1/Auth` keeps working). Controller names must therefore be unique across services.
 
-`GET /health` reports the gateway itself, whatever the state of the services. A service that cannot be reached gives `502`, `503`, or `504` within a few seconds (connect timeout 3 seconds).
+`GET /health` reports the gateway itself, whatever the state of the services. A service or MinIO that cannot be reached gives `502`, `503`, or `504` within a few seconds (connect timeout 3 seconds).
 
 The gateway does not depend on any service being up when it starts. A service whose name does not resolve yet (for example while it waits for its migration) gets `503`, and the gateway logs a warning naming the host. It retries every 10 seconds and starts forwarding as soon as the service appears, without a restart.
 

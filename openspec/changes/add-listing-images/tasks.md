@@ -31,9 +31,9 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 6. Gateway and Docker
 
-- [ ] 6.1 Add the two routes and the `minio` cluster to the gateway settings and `api-gateway/README.md` (design §10); verify in Local through `5080`: upload, reading a file, `PUT` and `DELETE` give 404, and the other environment's path gives 404
-- [ ] 6.2 Verify in Development (`6080`) and then Production (`7080`): upload with an image in its own bucket, reading files, order, delete, an 11 MB file (400), a body over 30 MB (400 or 413), MinIO stopped (502, 503, or 504 within 5 seconds on files, 503 on upload, listing reads still 200), and `--scale ms-listing=2` with parallel uploads at the limit; remove test data and containers afterwards
-- [ ] 6.3 Run `graphify update .`; verify `git status` shows no secrets or `.env` files and the root `README.md` still matches the running stack
+- [x] 6.1 Add the two routes and the `minio` cluster to the gateway settings and `api-gateway/README.md` (design §10); verify in Local through `5080`: upload, reading a file, `PUT` and `DELETE` give 405, and the other environment's path gives 404
+- [x] 6.2 Verify in Development (`6080`) and then Production (`7080`): upload with an image in its own bucket, reading files, order, delete, an 11 MB file (400), a body over 30 MB (400 or 413), MinIO stopped (502, 503, or 504 within 5 seconds on files, 503 on upload, listing reads still 200), and `--scale ms-listing=2` with parallel uploads at the limit; remove test data and containers afterwards
+- [x] 6.3 Run `graphify update .`; verify `git status` shows no secrets or `.env` files and the root `README.md` still matches the running stack
 
 ## Workflow follow-up
 
