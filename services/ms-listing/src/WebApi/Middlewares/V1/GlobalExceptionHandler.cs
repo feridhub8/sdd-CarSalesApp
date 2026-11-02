@@ -89,6 +89,10 @@ public sealed class GlobalExceptionHandler
                 Title = exception.Message
             });
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            // The caller left, such as a visitor moving on during a search. Nobody is waiting for an answer.
+        }
         catch (Exception exception)
         {
             this.logger.LogError(exception, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

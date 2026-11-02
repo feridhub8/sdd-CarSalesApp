@@ -19,7 +19,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 4. Whole system in Docker
 
-- [ ] 4.1 Run all suites and the full walk in Development and then Production with raised limits, confirming real rates arrive in both databases and `ms-listing` has no errors; remove test data and users, leaving the user's own data, and bring Development back up with default limits; run `graphify update .`; verify `git status` shows no secrets
+- [x] 4.1 Run all suites and the full walk in Development and then Production with raised limits, confirming real rates arrive in both databases and `ms-listing` has no errors; remove test data and users, leaving the user's own data, and bring Development back up with default limits; run `graphify update .`; verify `git status` shows no secrets
 
 ## Workflow follow-up
 

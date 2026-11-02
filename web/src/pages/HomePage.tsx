@@ -38,8 +38,9 @@ export function HomePage() {
   const pageCount = Math.min(Math.ceil((listings.data?.totalCount ?? 0) / LISTINGS_PAGE_SIZE), MAX_PAGE);
 
   // Any change goes back to the first page, since the page is not part of the search.
+  // Read from the address itself: two number fields can finish typing before the page renders in between.
   const edit = (change: (next: URLSearchParams) => void, options?: { replace?: boolean }) => {
-    const next = new URLSearchParams(search);
+    const next = readSearch(new URLSearchParams(window.location.search));
     change(next);
     setAddress(next, options);
   };
