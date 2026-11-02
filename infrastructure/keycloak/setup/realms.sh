@@ -27,6 +27,8 @@ client_id_of() {
   "$KCADM" get clients -r "$1" --config "$CONFIG" -q "clientId=$2" --fields id --format csv --noquotes
 }
 
+# Account lock: 5 wrong passwords in a row lock sign-in for 1 minute, growing to 15. The quick login check stays off:
+# with it, two wrong passwords within a second would lock any account, and the gateway's IP limit stops fast guessing.
 for realm in carsales carsalesDev; do
   "$KCADM" update "realms/$realm" --config "$CONFIG" \
     -s registrationEmailAsUsername=false \
@@ -34,7 +36,15 @@ for realm in carsales carsalesDev; do
     -s duplicateEmailsAllowed=false \
     -s revokeRefreshToken=true \
     -s refreshTokenMaxReuse=0 \
-    -s "passwordPolicy=$PASSWORD_POLICY"
+    -s "passwordPolicy=$PASSWORD_POLICY" \
+    -s bruteForceProtected=true \
+    -s permanentLockout=false \
+    -s failureFactor=5 \
+    -s waitIncrementSeconds=60 \
+    -s maxFailureWaitSeconds=900 \
+    -s maxDeltaTimeSeconds=43200 \
+    -s quickLoginCheckMilliSeconds=0 \
+    -s minimumQuickLoginWaitSeconds=0
 
   # Realm role for catalog administration and later moderation.
   if ! "$KCADM" get roles/admin -r "$realm" --config "$CONFIG" >/dev/null 2>&1; then
