@@ -7,4 +7,8 @@ public interface IUserService
     Task<KeycloakUserRepresentation> RegisterAsync(KeycloakUserRepresentation user, CancellationToken ct = default);
 
     Task<KeycloakUserRepresentation> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+    Task<KeycloakUserRepresentation> UpdatePhoneAsync(Guid id, string phone, CancellationToken ct = default);
+
+    Task<KeycloakUserRepresentation> GetSellerAsync(Guid id, CancellationToken ct = default);
 }

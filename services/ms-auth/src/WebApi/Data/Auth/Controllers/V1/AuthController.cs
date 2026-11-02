@@ -108,12 +108,32 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<GetUserOkResponseDto>> Me(CancellationToken ct)
     {
-        if (!Guid.TryParse(this.User.FindFirst(SubjectClaim)?.Value, out var userId))
-        {
-            throw new UnauthorizedException("The access token has no valid subject.");
-        }
+        return await this.mediator.Send(new GetUserByIdQuery(this.CurrentUserId()), ct);
+    }
 
-        return await this.mediator.Send(new GetUserByIdQuery(userId), ct);
+    [Authorize]
+    [HttpPut("Me/Phone")]
+    [ProducesResponseType<GetUserOkResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<GetUserOkResponseDto>> UpdatePhone([FromBody] UpdateUserPhoneDto dto, CancellationToken ct)
+    {
+        return await this.mediator.Send(new UpdateUserPhoneCommand(this.CurrentUserId(), dto), ct);
+    }
+
+    [HttpGet("Sellers/{id:guid}")]
+    [ProducesResponseType<GetSellerOkResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<GetSellerOkResponseDto>> GetSeller(Guid id, CancellationToken ct)
+    {
+        return await this.mediator.Send(new GetSellerByIdQuery(id), ct);
+    }
+
+    private Guid CurrentUserId()
+    {
+        return Guid.TryParse(this.User.FindFirst(SubjectClaim)?.Value, out var userId)
+            ? userId
+            : throw new UnauthorizedException("The access token has no valid subject.");
     }
 
     private static ClientType ParseClientType(string? clientType)

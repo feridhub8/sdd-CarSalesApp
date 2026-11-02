@@ -9,9 +9,9 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. API
 
-- [ ] 2.1 Add `Attributes` to `KeycloakUserRepresentation`, `phone` to `GetUserOkResponseDto`, `PhoneRuleExtensions`, and `IUserRepository.UpdatePhoneAsync` as read-then-write (design §4); verify the build has no warnings and `GET Me` returns `phone: null` for an existing test account
-- [ ] 2.2 Add `PUT Auth/Me/Phone` and `GET Auth/Sellers/{id}` with their commands, queries, validators, handlers, DTOs, and mappings (design §3, §6, §7); verify every scenario of `specs/authentication` in Local, including that after a change the email, names, roles, and password stay and sign-in works, that the seller response holds only two fields, and that the token holds no number; remove test users afterwards
-- [ ] 2.3 Update `services/ms-auth/README.md` (endpoints, number format, the read-then-write rule); verify the documented commands work as written; rerun the existing auth suite
+- [x] 2.1 Add `Attributes` to `KeycloakUserRepresentation`, `phone` to `GetUserOkResponseDto`, `PhoneRuleExtensions`, and `IUserRepository.UpdatePhoneAsync` as read-then-write (design §4); verify the build has no warnings and `GET Me` returns `phone: null` for an existing test account
+- [x] 2.2 Add `PUT Auth/Me/Phone` and `GET Auth/Sellers/{id}` with their commands, queries, validators, handlers, DTOs, and mappings (design §3, §6, §7); verify every scenario of `specs/authentication` in Local, including that after a change the email, names, roles, and password stay and sign-in works, that the seller response holds only two fields, and that the token holds no number; remove test users afterwards
+- [x] 2.3 Update `services/ms-auth/README.md` (endpoints, number format, the read-then-write rule); verify the documented commands work as written; rerun the existing auth suite
 
 ## 3. Website
 

@@ -33,6 +33,15 @@ public sealed class GlobalExceptionHandler
                 Title = "One or more fields are invalid."
             });
         }
+        catch (NotFoundException exception)
+        {
+            await WriteProblemAsync(context, new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Not Found",
+                Detail = exception.Message
+            });
+        }
         catch (ConflictException exception)
         {
             await WriteProblemAsync(context, new ProblemDetails

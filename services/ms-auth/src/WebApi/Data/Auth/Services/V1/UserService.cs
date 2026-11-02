@@ -28,4 +28,21 @@ public sealed class UserService : IUserService
         return await this.userRepository.GetByIdAsync(id, ct)
             ?? throw new UnauthorizedException("The user of this token no longer exists.");
     }
+
+    public async Task<KeycloakUserRepresentation> UpdatePhoneAsync(Guid id, string phone, CancellationToken ct = default)
+    {
+        if (!await this.userRepository.UpdatePhoneAsync(id, phone, ct))
+        {
+            throw new UnauthorizedException("The user of this token no longer exists.");
+        }
+
+        return await this.GetByIdAsync(id, ct);
+    }
+
+    // Unlike GetByIdAsync, which serves the token's own user, a missing seller is an ordinary 404.
+    public async Task<KeycloakUserRepresentation> GetSellerAsync(Guid id, CancellationToken ct = default)
+    {
+        var user = await this.userRepository.GetByIdAsync(id, ct);
+        return user is { Enabled: true } ? user : throw new NotFoundException($"Seller {id} was not found.");
+    }
 }
