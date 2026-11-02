@@ -15,7 +15,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 3. Data
 
-- [ ] 3.1 Add the `ListingImage` entity, `ListingImageConfigurations` (index, FK with restrict, query filter), the `Images` navigation on `Listing`, the DbSet, and the `AddListingImages` migration; verify `--migrate` creates the table with its index, existing listing reads still pass, and startup logs no query filter warning
+- [x] 3.1 Add the `ListingImage` entity, `ListingImageConfigurations` (index, FK with restrict, query filter), the `Images` navigation on `Listing`, the DbSet, and the `AddListingImages` migration; verify `--migrate` creates the table with its index, existing listing reads still pass, and startup logs no query filter warning
 
 ## 4. Image API
 

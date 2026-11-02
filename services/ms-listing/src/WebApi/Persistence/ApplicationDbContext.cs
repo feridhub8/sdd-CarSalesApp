@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Data.Brand.Entities.V1;
 using WebApi.Data.City.Entities.V1;
 using WebApi.Data.Listing.Entities.V1;
+using WebApi.Data.ListingImage.Entities.V1;
 using WebApi.Data.Model.Entities.V1;
 using WebApi.Data.Shared.Entities.V1.Base;
 
@@ -20,6 +21,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<City> Cities => this.Set<City>();
 
     public DbSet<Listing> Listings => this.Set<Listing>();
+
+    public DbSet<ListingImage> ListingImages => this.Set<ListingImage>();
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
     {

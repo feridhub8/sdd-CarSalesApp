@@ -59,4 +59,6 @@ public sealed class Listing : BaseEntity
     public bool IsPainted { get; set; }
 
     public bool IsDamaged { get; set; }
+
+    public List<ListingImage.Entities.V1.ListingImage> Images { get; set; } = [];
 }

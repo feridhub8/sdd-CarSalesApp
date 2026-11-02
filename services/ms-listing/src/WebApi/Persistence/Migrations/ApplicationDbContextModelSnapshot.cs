@@ -262,6 +262,34 @@ namespace WebApi.Persistence.Migrations
                     b.ToTable("listings", (string)null);
                 });
 
+            modelBuilder.Entity("WebApi.Data.ListingImage.Entities.V1.ListingImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("listing_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.HasKey("Id")
+                        .HasName("pk_listing_images");
+
+                    b.HasIndex("ListingId", "Position")
+                        .HasDatabaseName("ix_listing_images_listing_id_position");
+
+                    b.ToTable("listing_images", (string)null);
+                });
+
             modelBuilder.Entity("WebApi.Data.Model.Entities.V1.Model", b =>
                 {
                     b.Property<Guid>("Id")
@@ -328,6 +356,18 @@ namespace WebApi.Persistence.Migrations
                     b.Navigation("Model");
                 });
 
+            modelBuilder.Entity("WebApi.Data.ListingImage.Entities.V1.ListingImage", b =>
+                {
+                    b.HasOne("WebApi.Data.Listing.Entities.V1.Listing", "Listing")
+                        .WithMany("Images")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_listing_images_listings_listing_id");
+
+                    b.Navigation("Listing");
+                });
+
             modelBuilder.Entity("WebApi.Data.Model.Entities.V1.Model", b =>
                 {
                     b.HasOne("WebApi.Data.Brand.Entities.V1.Brand", "Brand")
@@ -338,6 +378,11 @@ namespace WebApi.Persistence.Migrations
                         .HasConstraintName("fk_models_brands_brand_id");
 
                     b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("WebApi.Data.Listing.Entities.V1.Listing", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }
