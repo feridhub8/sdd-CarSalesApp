@@ -29,7 +29,8 @@ public sealed class GetMyListingsHandler : IRequestHandler<GetMyListingsQuery, P
 
         return new PagedResponse<GetListingOkResponseDto>
         {
-            Items = this.mapper.Map<List<GetListingOkResponseDto>>(page.Items),
+            // A list shows only each listing's cover.
+            Items = this.mapper.Map<List<GetListingOkResponseDto>>(page.Items).Select(item => item with { Images = null }).ToList(),
             Page = page.Page,
             PageSize = page.PageSize,
             TotalCount = page.TotalCount

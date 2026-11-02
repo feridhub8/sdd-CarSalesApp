@@ -17,7 +17,11 @@ public sealed class ListingEfCoreRepository : IListingRepository
     public async Task<PagedResponse<Entities.V1.Listing>> GetPageAsync(
         Guid? ownerId, bool withDeleted, int page, int pageSize, CancellationToken ct = default)
     {
-        var listings = this.Query(withDeleted).AsNoTracking();
+        // Only the cover of each listing: a page of 100 must not load 2,000 image rows.
+        // Positions have no gaps, so the cover is at 0, which the (listing_id, position) index finds.
+        var listings = this.Query(withDeleted)
+            .Include(listing => listing.Images.Where(image => image.Position == 0))
+            .AsNoTracking();
         if (ownerId is not null)
         {
             listings = listings.Where(listing => listing.OwnerId == ownerId);
@@ -38,7 +42,9 @@ public sealed class ListingEfCoreRepository : IListingRepository
 
     public Task<Entities.V1.Listing?> GetByIdAsync(Guid id, bool withDeleted, CancellationToken ct = default)
     {
-        return this.Query(withDeleted).FirstOrDefaultAsync(listing => listing.Id == id, ct);
+        return this.Query(withDeleted)
+            .Include(listing => listing.Images.OrderBy(image => image.Position))
+            .FirstOrDefaultAsync(listing => listing.Id == id, ct);
     }
 
     public Task<Guid?> GetOwnerIdAsync(Guid id, CancellationToken ct = default)

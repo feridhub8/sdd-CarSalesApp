@@ -26,8 +26,8 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 5. Listing responses
 
-- [ ] 5.1 Add the filtered and full includes, `coverImageUrl`, and `images` to both listing response DTOs and mappings (design §9); verify the scenarios in the `listings` delta, that all listing scenarios still pass, and through the SQL log that a list page does not load every image
-- [ ] 5.2 Add the response fields to the listing section of `services/ms-listing/README.md`; verify they match a real response
+- [x] 5.1 Add the filtered and full includes, `coverImageUrl`, and `images` to both listing response DTOs and mappings (design §9); verify the scenarios in the `listings` delta, that all listing scenarios still pass, and through the SQL log that a list page does not load every image
+- [x] 5.2 Add the response fields to the listing section of `services/ms-listing/README.md`; verify they match a real response
 
 ## 6. Gateway and Docker
 

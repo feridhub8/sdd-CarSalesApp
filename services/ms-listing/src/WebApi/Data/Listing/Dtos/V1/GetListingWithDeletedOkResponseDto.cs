@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization;
 using WebApi.Data.Listing.Enums.V1;
+using WebApi.Data.ListingImage.Dtos.V1;
 
 namespace WebApi.Data.Listing.Dtos.V1;
 
@@ -67,4 +69,11 @@ public sealed record GetListingWithDeletedOkResponseDto
     public bool IsDeleted { get; init; }
 
     public DateTime? DeletedAt { get; init; }
+
+    // The first image's thumbnail; empty for a listing without images.
+    public string? CoverImageUrl { get; init; }
+
+    // All images in order when reading one listing; left out of lists.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<GetListingImageOkResponseDto>? Images { get; init; }
 }

@@ -125,7 +125,7 @@ Naming: `IFileRepository` and `FileS3Repository` in `Data/Shared/Repositories/V1
 
 ### 9. Listing responses
 
-`GetPageAsync` uses a filtered include taking the first image by position, so a page of 100 listings does not load 2,000 rows. `GetByIdAsync` includes all images in order.
+`GetPageAsync` uses a filtered include on `position = 0`, so a page of 100 listings does not load 2,000 rows. Positions have no gaps, so this finds the cover through the index; `Take(1)` would rank every row of the table on each page. `GetByIdAsync` includes all images in order.
 
 `GetListingOkResponseDto` and `GetListingWithDeletedOkResponseDto` gain `CoverImageUrl` and a nullable `Images` hidden from JSON when null. List handlers clear `Images`. Mappings build URLs through `IFileRepository`, resolved with `MapContext.Current.GetService`.
 

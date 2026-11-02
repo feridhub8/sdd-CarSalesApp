@@ -29,7 +29,8 @@ public sealed class GetAllListingsWithDeletedHandler : IRequestHandler<GetAllLis
 
         return new PagedResponse<GetListingWithDeletedOkResponseDto>
         {
-            Items = this.mapper.Map<List<GetListingWithDeletedOkResponseDto>>(page.Items),
+            // A list shows only each listing's cover.
+            Items = this.mapper.Map<List<GetListingWithDeletedOkResponseDto>>(page.Items).Select(item => item with { Images = null }).ToList(),
             Page = page.Page,
             PageSize = page.PageSize,
             TotalCount = page.TotalCount

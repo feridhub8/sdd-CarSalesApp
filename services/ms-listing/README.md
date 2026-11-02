@@ -148,6 +148,8 @@ Enums are sent and returned as their names; numbers and unknown names give `400`
 
 The response has every field plus `id`, `ownerId`, `brandId`, `brandName`, `modelName`, `cityName`, `createdAt`, and `updatedAt`.
 
+Every listing also has `coverImageUrl`, the first image's `thumbnailUrl`, or `null` without images. A single listing also has `images`, in order and empty without images; lists leave `images` out. See [Listing image endpoints](#listing-image-endpoints).
+
 ## Listing image endpoints
 
 All under `api/v1/ListingImage`. Images are read through listing responses.
