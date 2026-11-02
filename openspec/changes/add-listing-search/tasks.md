@@ -15,7 +15,7 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 3. Website
 
-- [ ] 3.1 Add the filter panel, sort control, result count, address handling, reset, and phone layout (design §7); verify with Playwright every scenario of the `web-frontend` delta at both widths, and read the screenshots; update the browsing suite; run all website suites with raised limits
+- [x] 3.1 Add the filter panel, sort control, result count, address handling, reset, and phone layout (design §7); verify with Playwright every scenario of the `web-frontend` delta at both widths, and read the screenshots; update the browsing suite; run all website suites with raised limits
 
 ## 4. Whole system in Docker
 

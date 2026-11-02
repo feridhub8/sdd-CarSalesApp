@@ -100,7 +100,7 @@ Names: `IExchangeRateRepository` and `ExchangeRateEfCoreRepository` for the tabl
 - **State lives in the address.** The panel reads and writes `useSearchParams`; there is no separate filter state to fall out of step, so reload, sharing, and back all work.
 - **Bad values:** the page keeps only values it knows before calling the API, so a hand-edited link cannot cause a 400 page.
 - **Debounce:** number fields wait 500 ms. Selects and checkboxes apply at once. Filtering uses `replace` for typing and `push` otherwise, so back does not step through each digit.
-- **A rejected range** is checked in the browser and shown beside the fields, without a request.
+- **A reversed range** is checked in the browser and explained beside the fields. It stays out of the search until fixed, so the API never answers 400 for it, while the other filters keep working.
 - **Layout:** a side column at `lg` and above, and a collapsible block with an active-count badge below. Multi-value filters are checkbox groups, which work on phones.
 - **Requests:** normal use stays far below the 300 per minute API limit. The existing 429 message covers the rest.
 

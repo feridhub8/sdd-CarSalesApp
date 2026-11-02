@@ -51,8 +51,9 @@ export type Page<T> = {
 
 export const LISTINGS_PAGE_SIZE = 20;
 
-export function getListings(page: number) {
-  return api<Page<Listing>>(`${API}/Listing?page=${page}&pageSize=${LISTINGS_PAGE_SIZE}`);
+// The query holds the filters, sort, and page: see search.ts.
+export function getListings(query: string) {
+  return api<Page<Listing>>(`${API}/Listing?${query}`);
 }
 
 export function getListing(id: string) {

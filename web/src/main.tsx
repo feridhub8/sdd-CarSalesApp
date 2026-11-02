@@ -20,7 +20,8 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      {/* Without transitions, so a checkbox held in the address does not spring back until the address catches up. */}
+      <BrowserRouter useTransitions={false}>
         <AuthProvider>
           <App />
         </AuthProvider>

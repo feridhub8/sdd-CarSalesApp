@@ -3,7 +3,7 @@ import { az } from './i18n/az';
 const currencySigns: Record<string, string> = { AZN: '₼', USD: '$', EUR: '€' };
 
 // Written by hand: browsers ship different locale data, and some fall back to English formats.
-function formatNumber(value: number) {
+export function formatNumber(value: number) {
   return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
