@@ -9,6 +9,8 @@ const gateway = process.env.GATEWAY_URL ?? 'http://localhost:5080';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    // IPv4, since the gateway reaches its Local destinations over IPv4; browsers find it through localhost too.
+    host: '127.0.0.1',
     port: 5081,
     strictPort: true,
     proxy: {

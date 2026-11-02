@@ -23,6 +23,23 @@ An unknown path under `/api/` gets `404` from the gateway and never reaches the 
 
 The gateway does not depend on any service being up when it starts. A service whose name does not resolve yet (for example while it waits for its migration) gets `503`, and the gateway logs a warning naming the host. It retries every 10 seconds and starts forwarding as soon as the service appears, without a restart.
 
+## Request limits
+
+The gateway limits API requests per client IP, in `RateLimiting` in `src/WebApi/appsettings.json`:
+
+| Policy | Default | Paths |
+|---|---|---|
+| `login` | 10 per minute | `Auth/Login` |
+| `register` | 5 per 10 minutes | `Auth/Register` |
+| `seller` | 30 per minute | `Auth/Sellers/**` |
+| `api` | 300 per minute | every other API path |
+
+- A request over a limit gets `429` with `Retry-After` and reaches no service.
+- The website, image files, and `/health` are not limited. A route gets a limit through `RateLimiterPolicy` in its settings.
+- Counters are in memory: they reset on restart, and each gateway replica counts on its own.
+- **Only the connection's IP counts.** `X-Forwarded-For` is ignored, since a client could send a new value each time. A load balancer in front of the gateway would make every client one IP, so it needs trusted proxy settings added with it.
+- **Docker Desktop shows every client as one IP** (`192.168.65.1`), so on a Mac all clients share the limits in Development and Production. If testing hits `429`, wait for `Retry-After`, or raise a limit for the moment with an environment variable such as `RateLimiting__Login__PermitLimit=100`.
+
 ## Adding a service
 
 Add a route and a cluster to `src/WebApi/appsettings.json`, and the Local address to `src/WebApi/appsettings.Local.json`:

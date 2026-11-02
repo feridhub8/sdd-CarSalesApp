@@ -224,3 +224,8 @@ Production data lives on this machine until it moves. Development data (`Dev` na
    ```
 
 3. On the server: follow the first-time setup, set `KC_HOSTNAME` in `keycloak/.env` to the server's URL, import the realm file instead of `realms/carsales-realm.json`, restore the dumps with `pg_restore`, and write fresh secrets into the server's Vault.
+4. Before the server faces the internet:
+   - Check that `api-gateway` sees real client IPs: from two different networks, the limits in [`api-gateway/README.md`](../api-gateway/README.md) must count separately. If every client shares one IP, or a load balancer stands in front, add trusted proxy settings.
+   - Close ports `5432`, `8080`, and `8200` to the outside. Keycloak's own sign-in on `8080` is not covered by the gateway's limits; account locks still apply there.
+   - Put TLS in front of the gateway. The refresh token cookie is `Secure`, and the site's session handling needs HTTPS on anything other than `localhost`.
+   - Set up backups for PostgreSQL and MinIO.

@@ -9,9 +9,9 @@ Apply one group at a time: stop after each group, report how to test it, wait fo
 
 ## 2. Gateway limits
 
-- [ ] 2.1 Add `RateLimitOptions`, `RateLimitExtensions.InitRateLimiting`, `UseRateLimiter`, the settings, the three new routes, and the policies on existing routes (design §3); verify the build has no warnings and existing routes still forward
-- [ ] 2.2 Verify every scenario of the `api-gateway` delta in Local with the default numbers, including two client IPs (loopback and the LAN address) staying separate, forged `X-Forwarded-For`, `Retry-After` matching the real wait, changed settings, and 500 image and page requests with no 429; rerun the existing gateway scenarios
-- [ ] 2.3 Update `api-gateway/README.md` (limits, settings, the connection IP rule, Docker Desktop's single IP) and add "moving to a server" notes to `infrastructure/README.md` (real IPs, trusted proxy, closing ports `8080` and `5432`); verify the documented commands work as written
+- [x] 2.1 Add `RateLimitOptions`, `RateLimitExtensions.InitRateLimiting`, `UseRateLimiter`, the settings, the three new routes, and the policies on existing routes (design §3); verify the build has no warnings and existing routes still forward
+- [x] 2.2 Verify every scenario of the `api-gateway` delta in Local with the default numbers, including two client IPs (loopback and the LAN address) staying separate, forged `X-Forwarded-For`, `Retry-After` matching the real wait, changed settings, and 500 image and page requests with no 429; rerun the existing gateway scenarios
+- [x] 2.3 Update `api-gateway/README.md` (limits, settings, the connection IP rule, Docker Desktop's single IP) and add "moving to a server" notes to `infrastructure/README.md` (real IPs, trusted proxy, closing ports `8080` and `5432`); verify the documented commands work as written
 
 ## 3. Website
 
